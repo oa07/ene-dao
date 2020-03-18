@@ -2,6 +2,8 @@ const Joi = require('@hapi/joi');
 
 exports.userValidation = data =>
   Joi.object({
+    gmailID: Joi.string().label('Gmail ID'),
+    facebookID: Joi.string().label('Facebook ID'),
     fullname: Joi.string()
       .max(64)
       .pattern(/^([a-zA-Z]+)(\.?\s?[a-zA-Z]+)+$/, '[az][AZ][ .]')
@@ -37,6 +39,8 @@ exports.userValidation = data =>
 
 exports.adminValidation = data =>
   Joi.object({
+    gmailID: Joi.string().label('Gmail ID'),
+    facebookID: Joi.string().label('Facebook ID'),
     fullname: Joi.string()
       .max(64)
       .pattern(/^([a-zA-Z]+)(\.?\s?[a-zA-Z]+)+$/, '[az][AZ][ .]')
@@ -64,4 +68,28 @@ exports.adminValidation = data =>
       .pattern(/^[+][8][8][0-9]+$/, '[09]')
       .required()
       .label('Contact Number')
+  }).validate(data);
+
+exports.loginValidation = data =>
+  Joi.object({
+    gmailID: Joi.string().label('Gmail ID'),
+    facebookID: Joi.string().label('Facebook ID'),
+    email: Joi.string()
+      .email()
+      .label('Email'),
+    password: Joi.string().label('Password'),
+    role: Joi.string()
+      .allow(...['USER', 'ADMIN'])
+      .required()
+      .label('Role')
+  }).validate(data);
+exports.verifyAccountValidation = data =>
+  Joi.object({
+    token: Joi.string()
+      .required()
+      .label('Token'),
+    role: Joi.string()
+      .allow(...['USER', 'ADMIN'])
+      .required()
+      .label('Role')
   }).validate(data);

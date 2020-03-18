@@ -1,6 +1,12 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
+  gmailID: {
+    type: String
+  },
+  facebookID: {
+    type: String
+  },
   fullname: {
     type: String,
     required: true
@@ -40,6 +46,12 @@ const userSchema = new mongoose.Schema({
 });
 
 const adminSchema = new mongoose.Schema({
+  gmailID: {
+    type: String
+  },
+  facebookID: {
+    type: String
+  },
   fullname: {
     type: String,
     required: true
