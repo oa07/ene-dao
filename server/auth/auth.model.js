@@ -89,5 +89,31 @@ const adminSchema = new mongoose.Schema({
   }
 });
 
+const contactUsSchema = new mongoose.Schema({
+  message: {
+    type: String,
+    required: true
+  },
+  reply: [
+    {
+      role: {
+        type: String,
+        enum: ['USER', 'ADMIN']
+      },
+      userID: {
+        type: String
+      },
+      message: {
+        type: String
+      }
+    }
+  ],
+  createdAt: {
+    type: Date,
+    default: Date.now()
+  }
+});
+
 exports.userModel = mongoose.model('user', userSchema);
 exports.adminModel = mongoose.model('admin', adminSchema);
+exports.contactUsModel = mongoose.model('contactus', contactUsSchema);
