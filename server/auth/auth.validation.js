@@ -118,12 +118,10 @@ exports.resetPasswordVal = data =>
 
 exports.createNewPasswordVal = data =>
   Joi.object({
-    oldPassword: joi
-      .string()
+    oldPassword: Joi.string()
       .required()
       .label('Old Password'),
-    confirmOldPassword: joi
-      .string()
+    confirmOldPassword: Joi.string()
       .required()
       .label('Confirm Old Password'),
     newPassword: Joi.string()

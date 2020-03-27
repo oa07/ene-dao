@@ -10,7 +10,6 @@ exports.verifyToken = asyncHandler(async (req, res, next) => {
   const bearerHeader = req.headers.authorization;
   if (bearerHeader && bearerHeader.startsWith('Bearer')) {
     const accessToken = bearerHeader.split(' ')[1];
-
     if (!accessToken) return next(new ErrRes('Not authorized !!', 401));
 
     try {
@@ -31,4 +30,10 @@ exports.verifyToken = asyncHandler(async (req, res, next) => {
   } else {
     return next(new ErrRes('Enter a valid token !!', 401));
   }
+});
+
+exports.adminAccess = asyncHandler(async (req, res, next) => {
+  const { role } = req.user;
+  if (role === 'admin') next();
+  else return next(new ErrRes('ACCESS DENIED', 403));
 });

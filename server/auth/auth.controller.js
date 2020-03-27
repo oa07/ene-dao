@@ -22,7 +22,10 @@ const {
   forgetPasswordVal
 } = require('./auth.validation');
 const { userModel, adminModel, contactUsModel } = require('./auth.model');
-const { sendMailForVerifyAccount } = require('../../config/sendMail');
+const {
+  sendMailForVerifyAccount,
+  sendMailForgetPasswordToken
+} = require('../../config/sendMail');
 
 exports.registerUser = asyncHandler(async (req, res, next) => {
   const { error } = userValidation(req.body);
@@ -77,7 +80,6 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
   await redis.set(`VA${verifyToken}`, user._id, 'PX', 24 * 60 * 60 * 1000); // 1 day
   return res.status(201).json({ success: true });
 });
-
 exports.registerAdmin = asyncHandler(async (req, res, next) => {
   const { error } = adminValidation(req.body);
   if (error) return next(new ErrRes(joiErrMsg(error), 400));
@@ -130,7 +132,6 @@ exports.registerAdmin = asyncHandler(async (req, res, next) => {
   await redis.set(`VA${verifyToken}`, user._id, 'PX', 24 * 60 * 60 * 1000); // 1 day
   return res.status(201).json({ success: true });
 });
-
 exports.verifyAccount = asyncHandler(async (req, res, next) => {
   const { error } = verifyAccountValidation(req.body);
   if (error) return next(new ErrRes(joiErrMsg(error), 400));
@@ -146,13 +147,11 @@ exports.verifyAccount = asyncHandler(async (req, res, next) => {
   await redis.del(`VA${token}`);
   return res.status(200).json({ success: true });
 });
-
 exports.login = asyncHandler(async (req, res, next) => {
   const { error } = loginValidation(req.body);
   if (error) return next(new ErrRes(joiErrMsg(error), 400));
 
   const { gmailID, facebookID, email, password, role } = req.body;
-  // role === USER || ADMIN
   let roleDbModel = getModel(role);
   let user;
   if (gmailID) {
@@ -180,9 +179,8 @@ exports.login = asyncHandler(async (req, res, next) => {
     config.jwtRefreshKey,
     { expiresIn: config.jwtRefreshKeyExpireTime }
   );
-  return res.status(200).json({ accessToken, refreshToken });
+  return res.status(200).json({ success: true, accessToken, refreshToken });
 });
-
 exports.tokenRefresher = asyncHandler(async (req, res, next) => {
   const { refreshToken, accessToken } = req.body;
   if (!refreshToken || !accessToken) {
@@ -190,28 +188,26 @@ exports.tokenRefresher = asyncHandler(async (req, res, next) => {
   }
 
   try {
+    const decoded = await jwt.verify(accessToken, config.jwtAccessKey);
+    return next(new ErrRes('Access token is not expired yet !!', 401));
+  } catch (err) {}
+  try {
     let isBlackListed;
     isBlackListed = await redis.get(`BlackListed${accessToken}`);
     if (isBlackListed) return next(new ErrRes('Access Token is invalid', 401));
 
     isBlackListed = await redis.get(`BlackListed${refreshToken}`);
     if (isBlackListed) return next(new ErrRes('Refresh Token is invalid', 401));
-
     const user = await jwt.verify(refreshToken, config.jwtRefreshKey);
-
     const { id, fullname, role } = user;
-    const accessToken = await jwt.sign(
-      { id, fullname, role },
-      config.jwtAccessKey,
-      { expiresIn: config.jwtAccessKeyExpireTime }
-    );
-
-    return res.status(201).json({ success: true, accessToken });
+    const token = await jwt.sign({ id, fullname, role }, config.jwtAccessKey, {
+      expiresIn: config.jwtAccessKeyExpireTime
+    });
+    return res.status(201).json({ success: true, token });
   } catch (err) {
-    return next(new ErrRes('Refresh Token is Expired !! Login again', 401));
+    return next(new ErrRes('Refresh Token is Expired', 401));
   }
 });
-
 exports.logout = asyncHandler(async (req, res, next) => {
   const { refreshToken, accessToken } = req.body;
   if (!refreshToken || !accessToken) {
@@ -240,14 +236,12 @@ exports.logout = asyncHandler(async (req, res, next) => {
     return next(new ErrRes('Tokens are invalid', 404));
   }
 });
-
 exports.viewProfile = asyncHandler(async (req, res, next) => {
   return res.status(200).json({
     success: true,
     user: req.user
   });
 });
-
 exports.updateProfile = asyncHandler(async (req, res, next) => {
   let { fullname, email, contactNo, location } = req.body;
   if (!fullname) fullname = req.user.fullname;
@@ -265,22 +259,24 @@ exports.updateProfile = asyncHandler(async (req, res, next) => {
 });
 
 exports.contactUs = asyncHandler(async (req, res, next) => {
-  const { message, messageID } = req.body;
-  if (!message) return res.json({ success: false });
+  const { message, messageID, reply } = req.body;
+
   if (messageID) {
+    if (!reply) return next(new ErrRes('Reply is required', 404));
     const dbmsg = await contactUsModel.findById(messageID);
     if (!dbmsg) return res.json({ success: false });
     dbmsg.reply.push({
       role: req.user.role,
       userID: req.user._id,
-      message
+      message: reply
     });
     await dbmsg.save();
   } else {
+    if (!message) return next(new ErrRes('Message is required', 404));
     const msg = new contactUsModel({ message });
     await msg.save();
   }
-  return res.status(200).json({ success: true });
+  return res.status(201).json({ success: true });
 });
 
 exports.forgetPasswordSendToken = asyncHandler(async (req, res, next) => {
@@ -299,10 +295,9 @@ exports.forgetPasswordSendToken = asyncHandler(async (req, res, next) => {
     .update(resetToken)
     .digest('hex');
 
-  // Reset password
   await redis.set(`RP${token}`, user._id, 'PX', 30 * 60 * 1000);
-  await sendMailForgetPasswordToken(user.fullname, user.email, token);
-
+  const { fullname, role } = user;
+  await sendMailForgetPasswordToken(fullname, email, token, role);
   return res.status(200).json({ success: true, token });
 });
 
@@ -310,8 +305,8 @@ exports.forgetPasswordRecieveToken = asyncHandler(async (req, res, next) => {
   const userID = await redis.get(`RP${req.params.token}`);
   if (!userID) return next(new ErrRes('Token is not valid', 401));
 
-  let user = await userModel.findById(userID);
-  if (!user) user = await adminModel.findById(userID);
+  let roleDbModel = getModel(req.params.role);
+  let user = await roleDbModel.findById(userID);
   if (!user) return next(new ErrRes('User not Found!! ', 404));
 
   return res.status(200).json({ success: true });
@@ -324,8 +319,8 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
   const userID = await redis.get(`RP${req.params.token}`);
   if (!userID) return next(new ErrRes('Token is not valid', 401));
 
-  let user = await userModel.findById(userID);
-  if (!user) user = await adminModel.findById(userID);
+  let roleDbModel = getModel(req.params.role);
+  let user = await roleDbModel.findById(userID);
   if (!user) return next(new ErrRes('User not Found!! ', 404));
 
   await redis.del(`RP${req.params.token}`);
@@ -342,7 +337,7 @@ exports.createNewPassword = asyncHandler(async (req, res, next) => {
   if (error) return next(new ErrRes(joiErrMsg(error), 400));
 
   if (oldPassword !== confirmOldPassword)
-    return next(new ErrRes('Old Password is not matching', 401));
+    return next(new ErrRes('Password is not matching', 401));
 
   const user = await req.AuthModel.findById(req.user._id).select(
     '+hashedPassword'
@@ -355,11 +350,4 @@ exports.createNewPassword = asyncHandler(async (req, res, next) => {
     return res.status(200).json({ success: true });
   }
   return next(new ErrRes('Old password is not matching', 401));
-});
-
-exports.changeFullname = asyncHandler(async (req, res, next) => {
-  let { user } = req;
-  user.fullname = req.body.fullname;
-  await user.save();
-  return res.status(200).json({ success: true });
 });

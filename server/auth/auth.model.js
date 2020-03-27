@@ -39,6 +39,10 @@ const userSchema = new mongoose.Schema({
     enum: ['customer', 'deliveryman'],
     required: true
   },
+  rating: {
+    type: Number,
+    default: 0
+  },
   createdAt: {
     type: Date,
     default: Date.now()
@@ -98,7 +102,7 @@ const contactUsSchema = new mongoose.Schema({
     {
       role: {
         type: String,
-        enum: ['USER', 'ADMIN']
+        enum: ['customer', 'deliveryman']
       },
       userID: {
         type: String

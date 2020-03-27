@@ -33,3 +33,26 @@ module.exports.sendMailForVerifyAccount = async (
 
   return transporter.sendMail(mailOptions);
 };
+
+module.exports.sendMailForgetPasswordToken = async (
+  username,
+  usermail,
+  token,
+  role
+) => {
+  const link = `${host}/auth/forgetPassword?token=${token}&role=${role}`;
+  const mailOptions = {
+    from: emailID,
+    to: usermail,
+    subject: 'Reset your password',
+    html: `
+      <div> 
+      <p>Hi ${username},</p>
+      <p>Thank you for registration. Click Here for verify your account.</p>
+      <div> <a href="${link}">Verify account</a> </div>
+      </div>
+    `
+  };
+
+  return transporter.sendMail(mailOptions);
+};
