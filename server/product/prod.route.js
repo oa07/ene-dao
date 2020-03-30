@@ -1,5 +1,8 @@
 const router = require('express').Router();
-const { verifyToken, adminAccess } = require('../middleware/authorization');
+const {
+  verifyToken,
+  prodUpdateAccess
+} = require('../middleware/authorization');
 
 const {
   uploadProducts,
@@ -7,9 +10,9 @@ const {
   prodInfo
 } = require('./prod.controller');
 
-router.post('/upload-product', [verifyToken, adminAccess], uploadProducts);
-router.post('/update-product', [verifyToken, adminAccess], updateProducts);
+router.post('/upload-product', [verifyToken, prodUpdateAccess], uploadProducts);
+router.post('/update-product', [verifyToken, prodUpdateAccess], updateProducts);
 
-router.get('/product-info', verifyToken, prodInfo);
+router.get('/product-info/:productID', verifyToken, prodInfo);
 
 module.exports = router;

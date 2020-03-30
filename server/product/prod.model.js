@@ -25,15 +25,22 @@ const prodSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  rating: {
-    type: Number
-  },
-  feedback: [
+  rating: [
     {
-      
-      type: String
+      userID: String,
+      rating: String
     }
   ],
+  feedback: [
+    {
+      userID: String,
+      feedback: String
+    }
+  ],
+  popularity: {
+    type: String,
+    default: 0
+  },
   createdAt: {
     type: Date,
     default: Date.now()
@@ -53,6 +60,10 @@ const orderSchema = new mongoose.Schema({
       },
       quantity: {
         type: Number,
+        required: true
+      },
+      shopID: {
+        type: String,
         required: true
       }
     }

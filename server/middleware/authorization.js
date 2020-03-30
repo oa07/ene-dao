@@ -37,3 +37,15 @@ exports.adminAccess = asyncHandler(async (req, res, next) => {
   if (role === 'admin') next();
   else return next(new ErrRes('ACCESS DENIED', 403));
 });
+
+exports.shopperAccess = asyncHandler(async (req, res, next) => {
+  const { role } = req.user;
+  if (role === 'shopper') next();
+  else return next(new ErrRes('ACCESS DENIED', 403));
+});
+
+exports.prodUpdateAccess = asyncHandler(async (req, res, next) => {
+  const { role } = req.user;
+  if (role === 'shopper' || role === 'admin') next();
+  else return next(new ErrRes('ACCESS DENIED', 403));
+});

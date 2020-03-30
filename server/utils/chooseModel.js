@@ -6,12 +6,11 @@ const roleChooser = role => {
     upRole === 'USER' ||
     upRole === 'CUSTOMER' ||
     upRole === 'DELIVERYMAN' ||
-    upRole === 'DELIVERY MAN'
+    upRole === 'DELIVERY MAN' ||
+    upRole === 'SHOPPER'
   )
     return userModel;
   if (upRole === 'ADMIN') return adminModel;
-  console.log('Here found an exception');
-  console.log(upRole);
 };
 
 module.exports = roleChooser;
