@@ -19,12 +19,12 @@ const {
   verifyAccountValidation,
   createNewPasswordVal,
   resetPasswordVal,
-  forgetPasswordVal
+  forgetPasswordVal,
 } = require('./auth.validation');
 const { userModel, adminModel, contactUsModel } = require('./auth.model');
 const {
   sendMailForVerifyAccount,
-  sendMailForgetPasswordToken
+  sendMailForgetPasswordToken,
 } = require('../../config/sendMail');
 
 exports.registerUser = asyncHandler(async (req, res, next) => {
@@ -40,7 +40,7 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
     contactNo,
     role,
     facebookID,
-    gmailID
+    gmailID,
   } = req.body;
 
   if (password !== confirmPassword)
@@ -51,7 +51,7 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
     if (isPresent)
       return res.status(400).json({
         success: false,
-        message: 'Account is already created with this ID'
+        message: 'Account is already created with this ID',
       });
   }
   if (gmailID) {
@@ -59,7 +59,7 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
     if (isPresent)
       return res.status(400).json({
         success: false,
-        message: 'Account is already created with this ID'
+        message: 'Account is already created with this ID',
       });
   }
 
@@ -72,7 +72,7 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
     contactNo,
     role,
     facebookID,
-    gmailID
+    gmailID,
   });
   await user.save();
   const verifyToken = tokenGenerator();
@@ -92,7 +92,7 @@ exports.registerAdmin = asyncHandler(async (req, res, next) => {
     identity,
     contactNo,
     facebookID,
-    gmailID
+    gmailID,
   } = req.body;
 
   if (password !== confirmPassword)
@@ -103,7 +103,7 @@ exports.registerAdmin = asyncHandler(async (req, res, next) => {
     if (isPresent)
       return res.status(400).json({
         success: false,
-        message: 'Account is already created with this ID'
+        message: 'Account is already created with this ID',
       });
   }
   if (gmailID) {
@@ -111,7 +111,7 @@ exports.registerAdmin = asyncHandler(async (req, res, next) => {
     if (isPresent)
       return res.status(400).json({
         success: false,
-        message: 'Account is already created with this ID'
+        message: 'Account is already created with this ID',
       });
   }
 
@@ -123,7 +123,7 @@ exports.registerAdmin = asyncHandler(async (req, res, next) => {
     identity,
     contactNo,
     facebookID,
-    gmailID
+    gmailID,
   });
 
   await user.save();
@@ -150,8 +150,15 @@ exports.verifyAccount = asyncHandler(async (req, res, next) => {
 exports.login = asyncHandler(async (req, res, next) => {
   const { error } = loginValidation(req.body);
   if (error) return next(new ErrRes(joiErrMsg(error), 400));
-
-  const { gmailID, facebookID, email, password, role } = req.body;
+  console.log(req.body);
+  const {
+    gmailID,
+    facebookID,
+    contactInfo,
+    password,
+    role,
+    infoMed,
+  } = req.body;
   let roleDbModel = getModel(role);
   let user;
   if (gmailID) {
@@ -161,10 +168,21 @@ exports.login = asyncHandler(async (req, res, next) => {
     user = await roleDbModel.findOne({ facebookID });
     if (!user) return next(new ErrRes('User not found', 404));
   } else {
-    if (!(email && password))
-      return next(new ErrRes('Please provide Email & Password', 400));
+    if (!(contactInfo && password))
+      return next(new ErrRes('Please provide Contact Info & Password', 400));
 
-    user = await roleDbModel.findOne({ email }).select('+hashedPassword');
+    if (!infoMed) {
+      return next(new ErrRes('Please provide infoMed', 400));
+    }
+    if (infoMed === 'EMAIL') {
+      user = await roleDbModel
+        .findOne({ email: contactInfo })
+        .select('+hashedPassword');
+    } else {
+      user = await roleDbModel
+        .findOne({ contactNo: contactInfo })
+        .select('+hashedPassword');
+    }
     if (!user) return next(new ErrRes('User not found', 404));
     const isMatched = await bcrypt.compare(password, user.hashedPassword);
     if (!isMatched) return next(new ErrRes('Password is not matching', 401));
@@ -201,7 +219,7 @@ exports.tokenRefresher = asyncHandler(async (req, res, next) => {
     const user = await jwt.verify(refreshToken, config.jwtRefreshKey);
     const { id, fullname, role } = user;
     const token = await jwt.sign({ id, fullname, role }, config.jwtAccessKey, {
-      expiresIn: config.jwtAccessKeyExpireTime
+      expiresIn: config.jwtAccessKeyExpireTime,
     });
     return res.status(201).json({ success: true, token });
   } catch (err) {
@@ -239,7 +257,7 @@ exports.logout = asyncHandler(async (req, res, next) => {
 exports.viewProfile = asyncHandler(async (req, res, next) => {
   return res.status(200).json({
     success: true,
-    user: req.user
+    user: req.user,
   });
 });
 exports.updateProfile = asyncHandler(async (req, res, next) => {
@@ -252,7 +270,7 @@ exports.updateProfile = asyncHandler(async (req, res, next) => {
   const fieldsToUpdate = { fullname, email, contactNo, location };
   const Model = getModel(req.user.role);
   const user = await Model.findByIdAndUpdate(req.user._id, fieldsToUpdate, {
-    new: true
+    new: true,
   });
 
   return res.status(200).json({ success: true, user });
@@ -268,7 +286,7 @@ exports.contactUs = asyncHandler(async (req, res, next) => {
     dbmsg.reply.push({
       role: req.user.role,
       userID: req.user._id,
-      message: reply
+      message: reply,
     });
     await dbmsg.save();
   } else {
@@ -290,10 +308,7 @@ exports.forgetPasswordSendToken = asyncHandler(async (req, res, next) => {
 
   const resetToken = crypto.randomBytes(20).toString('hex');
 
-  const token = crypto
-    .createHash('sha256')
-    .update(resetToken)
-    .digest('hex');
+  const token = crypto.createHash('sha256').update(resetToken).digest('hex');
 
   await redis.set(`RP${token}`, user._id, 'PX', 30 * 60 * 1000);
   const { fullname, role } = user;

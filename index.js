@@ -9,10 +9,17 @@ mongoose.connect(
     useNewUrlParser: true,
     useCreateIndex: true,
     useFindAndModify: false,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
   },
   () => logger.info('connected to database!')
 );
+
+app.post('/jc', (req, res, next) => {
+  console.log(req.body);
+  return res.json({
+    success: true,
+  });
+});
 
 app.listen(config.port, () =>
   logger.info(`Server is running on ${config.port}`)

@@ -1,6 +1,6 @@
 const Joi = require('@hapi/joi');
 
-exports.userValidation = data =>
+exports.userValidation = (data) =>
   Joi.object({
     gmailID: Joi.string().label('Gmail ID'),
     facebookID: Joi.string().label('Facebook ID'),
@@ -9,23 +9,14 @@ exports.userValidation = data =>
       .pattern(/^([a-zA-Z]+)(\.?\s?[a-zA-Z]+)+$/, '[az][AZ][ .]')
       .required()
       .label('Fullname'),
-    email: Joi.string()
-      .email()
-      .max(64)
-      .required()
-      .label('Email'),
+    email: Joi.string().email().max(64).required().label('Email'),
     password: Joi.string()
       .min(8)
       .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])/, '[az][AZ][09]')
       .required()
       .label('Password'),
-    confirmPassword: Joi.string()
-      .required()
-      .label('Confirm Password'),
-    location: Joi.string()
-      .max(2000)
-      .required()
-      .label('Home Address'),
+    confirmPassword: Joi.string().required().label('Confirm Password'),
+    location: Joi.string().max(2000).required().label('Home Address'),
     contactNo: Joi.string()
       .length(14)
       .pattern(/^[+][8][8][0-9]+$/, '[09]')
@@ -34,10 +25,10 @@ exports.userValidation = data =>
     role: Joi.string()
       .allow(...['customer', 'deliveryman'])
       .required()
-      .label('Role')
+      .label('Role'),
   }).validate(data);
 
-exports.adminValidation = data =>
+exports.adminValidation = (data) =>
   Joi.object({
     gmailID: Joi.string().label('Gmail ID'),
     facebookID: Joi.string().label('Facebook ID'),
@@ -46,87 +37,67 @@ exports.adminValidation = data =>
       .pattern(/^([a-zA-Z]+)(\.?\s?[a-zA-Z]+)+$/, '[az][AZ][ .]')
       .required()
       .label('Full name'),
-    email: Joi.string()
-      .email()
-      .max(64)
-      .required()
-      .label('Email'),
+    email: Joi.string().email().max(64).required().label('Email'),
     password: Joi.string()
       .min(8)
       .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])/, '[az][AZ][09]')
       .required()
       .label('Password'),
-    confirmPassword: Joi.string()
-      .required()
-      .label('Confirm Password'),
-    identity: Joi.string()
-      .max(2000)
-      .required()
-      .label('Identity'),
+    confirmPassword: Joi.string().required().label('Confirm Password'),
+    identity: Joi.string().max(2000).required().label('Identity'),
     contactNo: Joi.string()
       .length(14)
       .pattern(/^[+][8][8][0-9]+$/, '[09]')
       .required()
-      .label('Contact Number')
+      .label('Contact Number'),
   }).validate(data);
 
-exports.loginValidation = data =>
+exports.loginValidation = (data) =>
   Joi.object({
     gmailID: Joi.string().label('Gmail ID'),
     facebookID: Joi.string().label('Facebook ID'),
-    email: Joi.string()
-      .email()
-      .label('Email'),
+    contactInfo: Joi.string().label('Contact Info'),
     password: Joi.string().label('Password'),
     role: Joi.string()
       .allow(...['USER', 'ADMIN'])
       .required()
-      .label('Role')
+      .label('Role'),
+    infoMed: Joi.string()
+      .allow(...['PHONE', 'EMAIL'])
+      .label('infoMed'),
   }).validate(data);
 
-exports.verifyAccountValidation = data =>
+exports.verifyAccountValidation = (data) =>
   Joi.object({
-    token: Joi.string()
-      .required()
-      .label('Token'),
+    token: Joi.string().required().label('Token'),
     role: Joi.string()
       .allow(...['USER', 'ADMIN'])
       .required()
-      .label('Role')
+      .label('Role'),
   }).validate(data);
 
-exports.forgetPasswordVal = data =>
+exports.forgetPasswordVal = (data) =>
   Joi.object({
-    email: Joi.string()
-      .email()
-      .max(64)
-      .required()
-      .label('Email')
+    email: Joi.string().email().max(64).required().label('Email'),
   }).validate(data);
 
-exports.resetPasswordVal = data =>
+exports.resetPasswordVal = (data) =>
   Joi.object({
     password: Joi.string()
       .min(8)
       .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])/, '[az][AZ][09]')
       .required()
       .label('Password'),
-    confirmPassword: Joi.string()
-      .required()
-      .label('Confirm Password')
+    confirmPassword: Joi.string().required().label('Confirm Password'),
   }).validate(data);
 
-exports.createNewPasswordVal = data =>
+exports.createNewPasswordVal = (data) =>
   Joi.object({
-    oldPassword: Joi.string()
-      .required()
-      .label('Old Password'),
-    confirmOldPassword: Joi.string()
-      .required()
-      .label('Confirm Old Password'),
+    oldPassword: Joi.string().required().label('Old Password'),
+    confirmOldPassword: Joi.string().required().label('Confirm Old Password'),
     newPassword: Joi.string()
       .min(8)
       .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])/, '[az][AZ][09]')
       .required()
-      .label('New Password')
+      .label('New Password'),
   }).validate(data);
