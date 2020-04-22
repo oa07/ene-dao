@@ -1,28 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Input, FormGroup, Button } from 'reactstrap';
 import { Form, Field } from 'react-final-form';
+import { Link } from 'react-router-dom';
 import '../css/auth.css';
 import AuthImage from '../images/auth_image.jpg';
 
-import Isemail from 'isemail';
+import InputField from '../components/auth/InputField';
+import ShowError from '../components/auth/ShowError';
+
+import { checkNull, emailCheck, phoneNoCheck } from '../utils/helper';
 
 const Login = (props) => {
   const [contactInfo, setContactInfo] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(undefined);
-
-  const checkNull = (data) => {
-    return data === '' || data === null || data === undefined;
-  };
-
-  const emailCheck = (data) => {
-    return Isemail.validate(data);
-  };
-
-  const phoneNoCheck = (data) => {
-    const re = /^[0-9]+$/;
-    return re.test(data) && data.length === 11;
-  };
 
   const onSubmit = (values) => {
     if (!emailCheck(values.contactInfo) && !phoneNoCheck(values.contactInfo)) {
@@ -37,8 +28,8 @@ const Login = (props) => {
   useEffect(() => {
     console.log('in use effect');
     if (!checkNull(contactInfo) && !checkNull(password) && checkNull(error)) {
-      let infoMed = 'EMAIL';
-      if (phoneNoCheck(contactInfo)) infoMed = 'PHONE';
+      let loginUsing = 'EMAIL';
+      if (phoneNoCheck(contactInfo)) loginUsing = 'PHONE';
       fetch('/api/v1/auth/login', {
         method: 'POST',
         headers: {
@@ -48,7 +39,7 @@ const Login = (props) => {
           contactInfo,
           password,
           role: 'USER',
-          infoMed,
+          infoMed: loginUsing,
         }),
       })
         .then((res) => res.json())
@@ -69,12 +60,6 @@ const Login = (props) => {
     return err;
   };
 
-  const errorShowing = (meta) => {
-    return (
-      meta.error &&
-      meta.touched && <div className='formError'> * {meta.error}</div>
-    );
-  };
   return (
     <div className='authContainer'>
       <div className='auth'>
@@ -82,43 +67,29 @@ const Login = (props) => {
           <img src={AuthImage} alt='demoImage' />
         </div>
         <div className='auth_form  px-2'>
-          {error && (
-            <div className='alert alert-danger text-center' role='alert'>
-              {error}
-            </div>
-          )}
+          <ShowError error={error} />
           <Form
             onSubmit={onSubmit}
             validate={validation}
             render={({ handleSubmit, form, submitting, pristine, values }) => (
               <form onSubmit={handleSubmit}>
                 <FormGroup>
-                  <Field name='contactInfo'>
-                    {({ input, meta }) => (
-                      <div className='erow'>
-                        <Input
-                          {...input}
-                          type='text'
-                          id='contactInfoID'
-                          placeholder='Email / Phone number'
-                        />
-                        {errorShowing(meta)}
-                      </div>
-                    )}
-                  </Field>
-                  <Field name='password'>
-                    {({ input, meta }) => (
-                      <div className='erow'>
-                        <Input
-                          {...input}
-                          type='password'
-                          id='passwordID'
-                          placeholder='Password'
-                        />
-                        {errorShowing(meta)}
-                      </div>
-                    )}
-                  </Field>
+                  <div className='erow'>
+                    <InputField
+                      Name='contactInfo'
+                      Type='text'
+                      ID='contactInfoID'
+                      Placeholder='Email / Phone number'
+                    />
+                  </div>
+                  <div className='erow'>
+                    <InputField
+                      Name='password'
+                      Type='password'
+                      ID='passwordID'
+                      Placeholder='Password'
+                    />
+                  </div>
                 </FormGroup>
                 <FormGroup>
                   <div className='submit-btn text-center'>
@@ -147,6 +118,13 @@ const Login = (props) => {
                 Login with Facebook
               </Button>
             </div>
+          </div>
+
+          <div className='text-center pt-3'>
+            <p>
+              Don't have an account? Please{' '}
+              <Link to={`/auth/register/customer`}> Sign up </Link>
+            </p>
           </div>
         </div>
       </div>

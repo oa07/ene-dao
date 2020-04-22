@@ -1,123 +1,125 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-const userSchema = new mongoose.Schema({
+const userSchema = Schema({
   gmailID: {
-    type: String
+    type: String,
   },
   facebookID: {
-    type: String
+    type: String,
   },
   fullname: {
     type: String,
-    required: true
+    required: true,
   },
   email: {
     type: String,
     unique: true,
-    required: true
+    required: true,
   },
   hashedPassword: {
     type: String,
     required: true,
-    select: false
+    select: false,
   },
   location: {
-    type: String,
-    required: true
+    type: Schema.Types.ObjectId,
+    ref: 'location',
+    required: true,
   },
   contactNo: {
     type: String,
     unique: true,
-    required: true
+    required: true,
   },
   isVerified: {
     type: Boolean,
-    default: false
+    default: false,
   },
   role: {
     type: String,
     enum: ['customer', 'deliveryman', 'shopper'],
-    required: true
+    required: true,
   },
   rating: [
     {
       userID: String,
-      rating: String
-    }
+      rating: String,
+    },
   ],
   createdAt: {
     type: Date,
-    default: Date.now()
-  }
+    default: Date.now(),
+  },
 });
 
 const adminSchema = new mongoose.Schema({
   gmailID: {
-    type: String
+    type: String,
   },
   facebookID: {
-    type: String
+    type: String,
   },
   fullname: {
     type: String,
-    required: true
+    required: true,
   },
   role: {
     type: String,
-    default: 'admin'
+    default: 'admin',
   },
   email: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
   },
   hashedPassword: {
     type: String,
     required: true,
-    select: false
+    select: false,
   },
   identity: {
     type: String,
-    required: true
+    required: true,
   },
   contactNo: {
     type: String,
     unique: true,
-    required: true
+    required: true,
   },
   isVerified: {
     type: Boolean,
-    default: false
+    default: false,
   },
   createdAt: {
     type: Date,
-    default: Date.now()
-  }
+    default: Date.now(),
+  },
 });
 
 const contactUsSchema = new mongoose.Schema({
   message: {
     type: String,
-    required: true
+    required: true,
   },
   reply: [
     {
       role: {
         type: String,
-        enum: ['customer', 'deliveryman', 'shopper']
+        enum: ['customer', 'deliveryman', 'shopper'],
       },
       userID: {
-        type: String
+        type: String,
       },
       message: {
-        type: String
-      }
-    }
+        type: String,
+      },
+    },
   ],
   createdAt: {
     type: Date,
-    default: Date.now()
-  }
+    default: Date.now(),
+  },
 });
 
 exports.userModel = mongoose.model('user', userSchema);

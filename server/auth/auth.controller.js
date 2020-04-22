@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-
+const mongoose = require('mongoose');
 const logger = require('../../config/logger')(module);
 const joiErrMsg = require('../utils/JoiErrorMessage');
 const asyncHandler = require('../middleware/async');
@@ -36,7 +36,9 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
     email,
     password,
     confirmPassword,
-    location,
+    homeAddress,
+    flatNo,
+    identifier,
     contactNo,
     role,
     facebookID,
@@ -64,6 +66,11 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
+
+  // Will Search here location and find this locationID.
+  const location = new mongoose.Types.ObjectId();
+  // It is just a dummy data... for now.
+
   const user = new userModel({
     fullname,
     email,
@@ -74,10 +81,11 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
     facebookID,
     gmailID,
   });
+
   await user.save();
   const verifyToken = tokenGenerator();
   await sendMailForVerifyAccount(fullname, email, verifyToken, 'USER');
-  await redis.set(`VA${verifyToken}`, user._id, 'PX', 24 * 60 * 60 * 1000); // 1 day
+  await redis.set(`VA${verifyToken}`, user._id, 'PX', 24 * 60 * 60 * 1000);
   return res.status(201).json({ success: true });
 });
 exports.registerAdmin = asyncHandler(async (req, res, next) => {

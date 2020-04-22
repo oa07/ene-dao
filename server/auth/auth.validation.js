@@ -16,7 +16,9 @@ exports.userValidation = (data) =>
       .required()
       .label('Password'),
     confirmPassword: Joi.string().required().label('Confirm Password'),
-    location: Joi.string().max(2000).required().label('Home Address'),
+    homeAddress: Joi.string().max(2000).required().label('Home Address'),
+    flatNo: Joi.string().required().label('Flat No'),
+    identifier: Joi.string().label('Identifier'),
     contactNo: Joi.string()
       .length(14)
       .pattern(/^[+][8][8][0-9]+$/, '[09]')
