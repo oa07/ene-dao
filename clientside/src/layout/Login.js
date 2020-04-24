@@ -1,68 +1,41 @@
-import React, { useState, useEffect } from 'react';
-import { Input, FormGroup, Button } from 'reactstrap';
-import { Form, Field } from 'react-final-form';
-import { Link } from 'react-router-dom';
+import React from 'react';
+import { FormGroup, Button } from 'reactstrap';
+import { Form } from 'react-final-form';
+import { Link, Redirect } from 'react-router-dom';
+import { connect } from 'react-redux';
+
 import '../css/auth.css';
 import AuthImage from '../images/auth_image.jpg';
 
 import InputField from '../components/auth/InputField';
 import ShowError from '../components/auth/ShowError';
 
-import { checkNull, emailCheck, phoneNoCheck } from '../utils/helper';
+import { loginAction } from '../actions/authActions';
+import { loginValidator } from '../validations/login';
 
 const Login = (props) => {
-  const [contactInfo, setContactInfo] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState(undefined);
+  const { loginAction } = props;
+  const { isLoading, error, formSuccess } = props.auth;
 
   const onSubmit = (values) => {
-    if (!emailCheck(values.contactInfo) && !phoneNoCheck(values.contactInfo)) {
-      setError('Contact Info is invalid');
-    } else if (!checkNull(values.contactInfo) && !checkNull(values.password)) {
-      setError(undefined);
-      setContactInfo(values.contactInfo);
-      setPassword(values.password);
-    }
+    loginAction({ ...values, role: 'USER' });
   };
 
-  useEffect(() => {
-    console.log('in use effect');
-    if (!checkNull(contactInfo) && !checkNull(password) && checkNull(error)) {
-      let loginUsing = 'EMAIL';
-      if (phoneNoCheck(contactInfo)) loginUsing = 'PHONE';
-      fetch('/api/v1/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          contactInfo,
-          password,
-          role: 'USER',
-          infoMed: loginUsing,
-        }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (!data.success) setError(data.message);
-        });
-    }
-  }, [contactInfo, password, error]);
-
-  const validation = (values) => {
-    const err = {};
-    if (!values.contactInfo) {
-      err.contactInfo = 'Email or Phone number is Required';
-    }
-    if (!values.password) {
-      err.password = 'Password is Required';
-    }
-    return err;
-  };
+  if (formSuccess) {
+    return (
+      <Redirect
+        to={{
+          pathname: '/',
+          state: 'We are done!!',
+        }}
+      />
+    );
+  }
 
   return (
     <div className='authContainer'>
-      <div className='auth'>
+      <div className={isLoading ? 'loader' : ''}></div>
+      <div className={isLoading ? 'auth lessOpacity' : 'auth'}>
         <div className='auth_side_img'>
           <img src={AuthImage} alt='demoImage' />
         </div>
@@ -70,7 +43,7 @@ const Login = (props) => {
           <ShowError error={error} />
           <Form
             onSubmit={onSubmit}
-            validate={validation}
+            validate={loginValidator}
             render={({ handleSubmit, form, submitting, pristine, values }) => (
               <form onSubmit={handleSubmit}>
                 <FormGroup>
@@ -132,4 +105,5 @@ const Login = (props) => {
   );
 };
 
-export default Login;
+const mapStateToProps = (state) => ({ auth: state.authReducer });
+export default connect(mapStateToProps, { loginAction })(Login);
