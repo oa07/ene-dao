@@ -1,5 +1,4 @@
 import {
-  AUTH_INIT,
   AUTH_LOADING,
   AUTH_ERROR,
   AUTH_SUCCESSFUL,
@@ -15,14 +14,10 @@ const initialState = {
 
 export default function (state = initialState, action) {
   switch (action.type) {
-    case AUTH_INIT:
-      return {
-        ...initialState,
-      };
     case AUTH_LOADING:
       return {
-        ...state,
-        isLoading: !state.isLoading,
+        ...initialState,
+        isLoading: true,
       };
     case AUTH_ERROR:
       return {
@@ -31,15 +26,12 @@ export default function (state = initialState, action) {
       };
     case AUTH_SUCCESSFUL:
       return {
-        ...state,
-        isLoading: !state.isLoading,
+        ...initialState,
         formSuccess: true,
       };
     case AUTH_NOT_SUCCESSFUL:
       return {
-        ...state,
-        isLoading: !state.isLoading,
-        formSubmitted: false,
+        ...initialState,
         error: action.payload,
       };
     default:

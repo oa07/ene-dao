@@ -13,7 +13,7 @@ const {
   createNewPassword,
   forgetPasswordSendToken,
   forgetPasswordRecieveToken,
-  resetPassword
+  resetPassword,
 } = require('./auth.controller');
 
 const { verifyToken } = require('../middleware/authorization');

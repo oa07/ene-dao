@@ -29,7 +29,10 @@ const {
 
 exports.registerUser = asyncHandler(async (req, res, next) => {
   const { error } = userValidation(req.body);
-  if (error) return next(new ErrRes(joiErrMsg(error), 400));
+  if (error) {
+    const joiErr = joiErrMsg(error);
+    return next(new ErrRes(joiErr.message, 400, joiErr.errorField));
+  }
 
   const {
     fullname,

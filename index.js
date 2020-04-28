@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const config = require('./config/config');
 const app = require('./config/express');
 const logger = require('./config/logger')(module);
-console.log(config.mongodbHost);
 mongoose.connect(
   config.env === 'test' ? config.mongodbHostTest : config.mongodbHost,
   {

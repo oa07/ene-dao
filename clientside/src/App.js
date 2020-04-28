@@ -3,11 +3,10 @@ import NavBar from './components/NavBar';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
 import RegisterCustomer from './layout/RegisterCustomer';
-import RegisterDeliveryman from './layout/RegisterDeliveryman';
-import RegisterAdmin from './layout/RegisterAdmin';
 import Login from './layout/Login';
 import Homepage from './layout/Homepage';
 import PageNotFound from './layout/PageNotFound';
+import UserProfile from './layout/UserProfile';
 
 import { Provider } from 'react-redux';
 
@@ -28,17 +27,8 @@ export default (props) => {
               path='/auth/register/customer'
               component={RegisterCustomer}
             />
-            <Route
-              exact
-              path='/auth/register/deliveryman'
-              component={RegisterDeliveryman}
-            />
-            <Route
-              exact
-              path='/auth/register/admin'
-              component={RegisterAdmin}
-            />
             <Route exact path='/auth/login' component={Login} />
+            <Route exact path='/user/profile' component={UserProfile} />
             <Route path='*' component={PageNotFound} />
           </Switch>
         </div>

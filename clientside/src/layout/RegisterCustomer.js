@@ -4,8 +4,8 @@ import { Form } from 'react-final-form';
 import { Link, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import '../css/auth.css';
-import AuthImage from '../images/auth_image.jpg';
+import '../assests/css/auth.css';
+import AuthImage from '../assests/images/auth_image.jpg';
 
 import InputField from '../components/auth/InputField';
 import ShowError from '../components/auth/ShowError';
@@ -17,8 +17,8 @@ const RegisterCustomer = (props) => {
   const { registerCustomerAction } = props;
   const { isLoading, error, formSuccess } = props.auth;
 
-  const onSubmit = (values) => {
-    registerCustomerAction({
+  const onSubmit = async (values) => {
+    await registerCustomerAction({
       ...values,
       contactNo: `+88${values.contactNo}`,
       role: 'customer',

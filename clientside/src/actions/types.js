@@ -1,5 +1,4 @@
 // Auth
-export const AUTH_INIT = 'AUTH_INIT';
 export const AUTH_LOADING = 'AUTH_LOADING';
 export const AUTH_ERROR = 'AUTH_ERROR';
 export const AUTH_SUCCESSFUL = 'AUTH_SUCCESSFUL';

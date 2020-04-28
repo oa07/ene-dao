@@ -3,9 +3,11 @@ import { FormGroup, Button } from 'reactstrap';
 import { Form } from 'react-final-form';
 import { Link, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
+import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
+import GoogleLogin from 'react-google-login';
 
-import '../css/auth.css';
-import AuthImage from '../images/auth_image.jpg';
+import '../assests/css/auth.css';
+import AuthImage from '../assests/images/auth_image.jpg';
 
 import InputField from '../components/auth/InputField';
 import ShowError from '../components/auth/ShowError';
@@ -16,20 +18,27 @@ import { loginValidator } from '../validations/login';
 const Login = (props) => {
   const { loginAction } = props;
   const { isLoading, error, formSuccess } = props.auth;
+  const onSubmit = async (values) => {
+    await loginAction({ ...values, role: 'USER' });
+  };
 
-  const onSubmit = (values) => {
-    loginAction({ ...values, role: 'USER' });
+  const responseGoogle = async (res) => {
+    await loginAction({ gmailID: res.profileObj.googleId, role: 'USER' });
+  };
+
+  const responseFacebook = async (res) => {
+    await loginAction({ facebookID: res.id, role: 'USER' });
   };
 
   if (formSuccess) {
-    return (
-      <Redirect
-        to={{
-          pathname: '/',
-          state: 'We are done!!',
-        }}
-      />
-    );
+    // return (
+    //   <Redirect
+    //     to={{
+    //       pathname: '/user/profile',
+    //       state: 'We are done!!',
+    //     }}
+    //   />
+    // );
   }
 
   return (
@@ -70,9 +79,9 @@ const Login = (props) => {
                       type='submit'
                       id='submitID'
                       className='btn btn-dark px-5 py-2'
-                      disabled={submitting}
+                      disabled={submitting || pristine}
                     >
-                      Signup
+                      Signin
                     </Button>
                   </div>
                 </FormGroup>
@@ -82,14 +91,39 @@ const Login = (props) => {
 
           <div className='fbGmailLogin'>
             <div className='gmail-btn py-2'>
-              <Button className='btn btn-dark btn-block'>
-                Login with Gmail
-              </Button>
+              <GoogleLogin
+                clientId='501935314157-nnfh7nvah1p9n1smdbj6ejt1avc6s22u.apps.googleusercontent.com'
+                render={(renderProps) => (
+                  <Button
+                    className='btn btn-dark btn-block'
+                    onClick={renderProps.onClick}
+                    disabled={renderProps.disabled}
+                  >
+                    Login with Gmail
+                  </Button>
+                )}
+                buttonText='Login'
+                onSuccess={responseGoogle}
+                onFailure={responseGoogle}
+                cookiePolicy={'single_host_origin'}
+              />
             </div>
+
             <div className='fb-btn'>
-              <Button className='btn btn-dark btn-block'>
-                Login with Facebook
-              </Button>
+              <FacebookLogin
+                appId='2643388962571610'
+                autoLoad
+                fields='name,email,picture'
+                callback={responseFacebook}
+                render={(renderProps) => (
+                  <Button
+                    className='btn btn-dark btn-block'
+                    onClick={renderProps.onClick}
+                  >
+                    Login with Facebook
+                  </Button>
+                )}
+              />
             </div>
           </div>
 
@@ -105,5 +139,17 @@ const Login = (props) => {
   );
 };
 
-const mapStateToProps = (state) => ({ auth: state.authReducer });
+const mapStateToProps = (state) => ({
+  auth: state.authReducer,
+  cred: state.credentialReducer,
+});
 export default connect(mapStateToProps, { loginAction })(Login);
+
+// render={(renderProps) => (
+//   <Button
+//     className='btn btn-dark btn-block'
+//     onClick={renderProps.onClick}
+//   >
+//     Login with Gmail
+//   </Button>
+// )}

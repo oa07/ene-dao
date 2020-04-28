@@ -8,7 +8,7 @@ const errorHandler = (err, req, res, next) => {
   // Mongoose duplicate key
   if (err.code === 11000) {
     const message = `${Object.keys(error.keyPattern)[0]} is already used.`;
-    error = new ErrRes(message, 409);
+    error = new ErrRes(message, 409, Object.keys(error.keyPattern)[0]);
   }
 
   // Mongoose bad objectID
@@ -19,7 +19,7 @@ const errorHandler = (err, req, res, next) => {
 
   // Mongoose validation error
   if (err.name === 'ValidationError') {
-    const message = Object.values(err.errors).map(val => val.message);
+    const message = Object.values(err.errors).map((val) => val.message);
     error = new ErrRes(message, 400);
   }
 
@@ -27,7 +27,8 @@ const errorHandler = (err, req, res, next) => {
 
   res.status(error.statusCode || 500).json({
     success: false,
-    message: error.message || 'Internal server error'
+    message: error.message || 'Internal server error',
+    errorField: error.errorField || undefined,
   });
 };
 
