@@ -12,3 +12,6 @@ export const AUTH_SUCCESSFUL_LOGIN = 'AUTH_SUCCESSFUL_LOGIN';
 
 // Tokens
 export const TOKENS = 'TOKENS';
+
+// logout
+export const LOGOUT = 'LOGOUT';

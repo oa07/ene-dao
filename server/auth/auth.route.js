@@ -23,7 +23,7 @@ router.post('/register/admin', registerAdmin);
 router.post('/login', login);
 router.get('/verify-account', verifyAccount);
 router.get('/token-refresher', tokenRefresher);
-router.get('/logout', verifyToken, logout);
+router.get('/logout/:accessToken/:refreshToken', verifyToken, logout);
 router.get('/view-profile', verifyToken, viewProfile);
 router.post('/update-details', verifyToken, updateProfile);
 router.post('/contact-us', verifyToken, contactUs);

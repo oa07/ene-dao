@@ -8,11 +8,32 @@ import {
   AUTH_SUCCESSFUL_LOGIN,
   AUTH_LOGIN_INIT,
   TOKENS,
+  LOGOUT,
 } from './types';
 
 import { emailCheck, phoneNoCheck } from '../utils/helper';
 
-export const registerStateInit = () => (dispatch) => {
+export const logoutAction = ({ accessToken, refreshToken }) => async (
+  dispatch
+) => {
+  console.log('Logout Action');
+  console.log({ accessToken, refreshToken });
+  const res = await fetch(
+    `/api/v1/auth/logout/${accessToken}/${refreshToken}`,
+    {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+  const data = await res.json();
+  if (data.success) {
+    dispatch({ type: LOGOUT });
+  }
+};
+
+export const stateInit = () => (dispatch) => {
   dispatch({ type: AUTH_SIGNUP_INIT });
   dispatch({ type: AUTH_LOGIN_INIT });
 };

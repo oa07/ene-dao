@@ -1,10 +1,16 @@
 import React, { Fragment } from 'react';
 import { Link } from 'react-router-dom';
-import { NavItem } from 'reactstrap';
+import { NavItem, Button } from 'reactstrap';
 import { connect } from 'react-redux';
 
+import { logoutAction } from '../actions/authActions';
+
 const NavbarCredentials = (props) => {
-  const { isAuthenticated } = props.cred;
+  const { logoutAction } = props;
+  const { isAuthenticated, accessToken, refreshToken } = props.cred;
+  const logout = () => {
+    logoutAction({ accessToken, refreshToken });
+  };
   return (
     <Fragment>
       <NavItem>
@@ -19,9 +25,13 @@ const NavbarCredentials = (props) => {
 
       {isAuthenticated && (
         <NavItem>
-          <Link to='/' className='btn btn-outline-light ml-lg-2' outline>
+          <Button
+            className='btn btn-outline-light ml-lg-2'
+            outline
+            onClick={logout}
+          >
             Logout
-          </Link>
+          </Button>
         </NavItem>
       )}
     </Fragment>
@@ -32,5 +42,5 @@ const mapStateToProps = (state) => ({
   cred: state.credentialReducer,
 });
 
-const mapDispatchToAction = {};
+const mapDispatchToAction = { logoutAction };
 export default connect(mapStateToProps, mapDispatchToAction)(NavbarCredentials);

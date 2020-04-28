@@ -1,4 +1,4 @@
-import { TOKENS } from '../actions/types';
+import { TOKENS, LOGOUT } from '../actions/types';
 
 const initialState = {
   accessToken: null,
@@ -14,6 +14,10 @@ export default function (state = initialState, action) {
         accessToken: action.payload.accessToken,
         refreshToken: action.payload.refreshToken,
         isAuthenticated: true,
+      };
+    case LOGOUT:
+      return {
+        ...initialState,
       };
     default:
       return state;

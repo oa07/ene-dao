@@ -239,7 +239,7 @@ exports.tokenRefresher = asyncHandler(async (req, res, next) => {
   }
 });
 exports.logout = asyncHandler(async (req, res, next) => {
-  const { refreshToken, accessToken } = req.body;
+  const { refreshToken, accessToken } = req.params;
   if (!refreshToken || !accessToken) {
     return next(new ErrRes('Both tokens must be present!!', 404));
   }

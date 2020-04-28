@@ -12,11 +12,11 @@ import AuthImage from '../assests/images/auth_image.jpg';
 import InputField from '../components/auth/InputField';
 import ShowError from '../components/auth/ShowError';
 
-import { loginAction } from '../actions/authActions';
+import { loginAction, stateInit } from '../actions/authActions';
 import { loginValidator } from '../validations/login';
 
 const Login = (props) => {
-  const { loginAction } = props;
+  const { loginAction, stateInit } = props;
   const { isLoading, error, errorField, formSuccess } = props.auth;
   const { isAuthenticated } = props.cred;
 
@@ -39,6 +39,7 @@ const Login = (props) => {
   };
 
   if (formSuccess) {
+    stateInit(); // Seems problematic
     return <Redirect to={{ pathname: '/user/profile' }} />;
   }
 
@@ -144,5 +145,5 @@ const mapStateToProps = (state) => ({
   cred: state.credentialReducer,
 });
 
-const mapDispatchToAction = { loginAction };
+const mapDispatchToAction = { loginAction, stateInit };
 export default connect(mapStateToProps, mapDispatchToAction)(Login);
