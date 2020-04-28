@@ -2,13 +2,20 @@ import {
   AUTH_LOADING_SIGNUP,
   AUTH_ERROR_SIGNUP,
   AUTH_SUCCESSFUL_SIGNUP,
+  AUTH_SIGNUP_INIT,
   AUTH_LOADING_LOGIN,
   AUTH_ERROR_LOGIN,
   AUTH_SUCCESSFUL_LOGIN,
+  AUTH_LOGIN_INIT,
   TOKENS,
 } from './types';
 
 import { emailCheck, phoneNoCheck } from '../utils/helper';
+
+export const registerStateInit = () => (dispatch) => {
+  dispatch({ type: AUTH_SIGNUP_INIT });
+  dispatch({ type: AUTH_LOGIN_INIT });
+};
 
 export const registerCustomerAction = (authData) => async (dispatch) => {
   if (authData.password !== authData.confirmPassword) {

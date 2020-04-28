@@ -10,6 +10,8 @@ import UserProfile from './layout/UserProfile';
 
 import { Provider } from 'react-redux';
 
+import ProtectedRoute from './components/ProtectedRoute';
+
 import store from './store';
 
 export default (props) => {
@@ -28,7 +30,7 @@ export default (props) => {
               component={RegisterCustomer}
             />
             <Route exact path='/auth/login' component={Login} />
-            <Route exact path='/user/profile' component={UserProfile} />
+            <ProtectedRoute url='/user/profile' component={UserProfile} />
             <Route path='*' component={PageNotFound} />
           </Switch>
         </div>

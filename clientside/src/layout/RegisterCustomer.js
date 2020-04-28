@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FormGroup, Button } from 'reactstrap';
 import { Form } from 'react-final-form';
 import { Link, Redirect } from 'react-router-dom';
@@ -10,12 +10,32 @@ import AuthImage from '../assests/images/auth_image.jpg';
 import InputField from '../components/auth/InputField';
 import ShowError from '../components/auth/ShowError';
 
-import { registerCustomerAction } from '../actions/authActions';
+import {
+  registerCustomerAction,
+  registerStateInit,
+} from '../actions/authActions';
 import { regCustomerValidator } from '../validations/register';
 
 const RegisterCustomer = (props) => {
-  const { registerCustomerAction } = props;
+  const { registerCustomerAction, registerStateInit } = props;
   const { isLoading, error, errorField, formSuccess } = props.auth;
+  const { isAuthenticated } = props.cred;
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      return <Redirect to={{ pathname: '/' }} />;
+    } else if (formSuccess) {
+      return (
+        <Redirect
+          to={{
+            pathname: '/auth/login',
+          }}
+        />
+      );
+    } else {
+      registerStateInit();
+    }
+  }, [formSuccess]);
 
   const onSubmit = async (values) => {
     await registerCustomerAction({
@@ -24,17 +44,6 @@ const RegisterCustomer = (props) => {
       role: 'customer',
     });
   };
-
-  if (formSuccess) {
-    return (
-      <Redirect
-        to={{
-          pathname: '/auth/login',
-          state: 'Please sign in',
-        }}
-      />
-    );
-  }
 
   return (
     <div className='authContainer'>
@@ -147,7 +156,10 @@ const RegisterCustomer = (props) => {
   );
 };
 
-const mapStateToProps = (state) => ({ auth: state.signupReducer });
-const mapDispatchToProps = { registerCustomerAction };
+const mapStateToProps = (state) => ({
+  auth: state.signupReducer,
+  cred: state.credentialReducer,
+});
+const mapDispatchToProps = { registerCustomerAction, registerStateInit };
 
 export default connect(mapStateToProps, mapDispatchToProps)(RegisterCustomer);

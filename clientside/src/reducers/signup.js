@@ -1,4 +1,5 @@
 import {
+  AUTH_SIGNUP_INIT,
   AUTH_LOADING_SIGNUP,
   AUTH_ERROR_SIGNUP,
   AUTH_SUCCESSFUL_SIGNUP,
@@ -21,6 +22,10 @@ export default function (state = initialState, action) {
   }
 
   switch (action.type) {
+    case AUTH_SIGNUP_INIT:
+      return {
+        ...initialState,
+      };
     case AUTH_LOADING_SIGNUP:
       return {
         ...initialState,

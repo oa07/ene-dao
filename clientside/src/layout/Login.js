@@ -18,27 +18,28 @@ import { loginValidator } from '../validations/login';
 const Login = (props) => {
   const { loginAction } = props;
   const { isLoading, error, errorField, formSuccess } = props.auth;
+  const { isAuthenticated } = props.cred;
+
+  if (isAuthenticated) {
+    return <Redirect to={{ pathname: '/' }} />;
+  }
+
   const onSubmit = async (values) => {
     await loginAction({ ...values, role: 'USER' });
   };
 
   const responseGoogle = async (res) => {
+    console.log('Google Login Responsing');
     await loginAction({ gmailID: res.profileObj.googleId, role: 'USER' });
   };
 
   const responseFacebook = async (res) => {
+    console.log('Facebook Login Responsing');
     await loginAction({ facebookID: res.id, role: 'USER' });
   };
 
   if (formSuccess) {
-    // return (
-    //   <Redirect
-    //     to={{
-    //       pathname: '/user/profile',
-    //       state: 'We are done!!',
-    //     }}
-    //   />
-    // );
+    return <Redirect to={{ pathname: '/user/profile' }} />;
   }
 
   return (
@@ -112,7 +113,6 @@ const Login = (props) => {
             <div className='fb-btn'>
               <FacebookLogin
                 appId='2643388962571610'
-                autoLoad
                 fields='name,email,picture'
                 callback={responseFacebook}
                 render={(renderProps) => (
