@@ -17,7 +17,7 @@ import { loginValidator } from '../validations/login';
 
 const Login = (props) => {
   const { loginAction } = props;
-  const { isLoading, error, formSuccess } = props.auth;
+  const { isLoading, error, errorField, formSuccess } = props.auth;
   const onSubmit = async (values) => {
     await loginAction({ ...values, role: 'USER' });
   };
@@ -140,16 +140,9 @@ const Login = (props) => {
 };
 
 const mapStateToProps = (state) => ({
-  auth: state.authReducer,
+  auth: state.loginReducer,
   cred: state.credentialReducer,
 });
-export default connect(mapStateToProps, { loginAction })(Login);
 
-// render={(renderProps) => (
-//   <Button
-//     className='btn btn-dark btn-block'
-//     onClick={renderProps.onClick}
-//   >
-//     Login with Gmail
-//   </Button>
-// )}
+const mapDispatchToAction = { loginAction };
+export default connect(mapStateToProps, mapDispatchToAction)(Login);

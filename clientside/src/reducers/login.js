@@ -1,38 +1,33 @@
 import {
-  AUTH_LOADING,
-  AUTH_ERROR,
-  AUTH_SUCCESSFUL,
-  AUTH_NOT_SUCCESSFUL,
+  AUTH_LOADING_LOGIN,
+  AUTH_ERROR_LOGIN,
+  AUTH_SUCCESSFUL_LOGIN,
 } from '../actions/types';
 
 const initialState = {
   isLoading: false,
   error: undefined,
-  formSubmitted: false,
+  errorField: undefined,
   formSuccess: false,
 };
 
 export default function (state = initialState, action) {
   switch (action.type) {
-    case AUTH_LOADING:
+    case AUTH_LOADING_LOGIN:
       return {
         ...initialState,
         isLoading: true,
       };
-    case AUTH_ERROR:
+    case AUTH_ERROR_LOGIN:
       return {
-        ...state,
-        error: action.payload,
+        ...initialState,
+        error: action.message,
+        errorField: action.errorField,
       };
-    case AUTH_SUCCESSFUL:
+    case AUTH_SUCCESSFUL_LOGIN:
       return {
         ...initialState,
         formSuccess: true,
-      };
-    case AUTH_NOT_SUCCESSFUL:
-      return {
-        ...initialState,
-        error: action.payload,
       };
     default:
       return state;

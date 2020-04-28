@@ -49,23 +49,19 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
   } = req.body;
 
   if (password !== confirmPassword)
-    return next(new ErrRes('Password is not matching', 401));
+    return next(new ErrRes('Password is not matching', 401, 'Password'));
 
   if (facebookID) {
     const isPresent = await userModel.findOne({ facebookID });
     if (isPresent)
-      return res.status(400).json({
-        success: false,
-        message: 'Account is already created with this ID',
-      });
+      return next(
+        new ErrRes('This account is already exists', 400, 'FacebookID')
+      );
   }
   if (gmailID) {
     const isPresent = await userModel.findOne({ gmailID });
     if (isPresent)
-      return res.status(400).json({
-        success: false,
-        message: 'Account is already created with this ID',
-      });
+      return next(new ErrRes('This account is already exists', 400, 'GmailID'));
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -160,7 +156,12 @@ exports.verifyAccount = asyncHandler(async (req, res, next) => {
 });
 exports.login = asyncHandler(async (req, res, next) => {
   const { error } = loginValidation(req.body);
-  if (error) return next(new ErrRes(joiErrMsg(error), 400));
+  if (error) {
+    if (error) {
+      const joiErr = joiErrMsg(error);
+      return next(new ErrRes(joiErr.message, 400, joiErr.errorField));
+    }
+  }
   console.log(req.body);
   const {
     gmailID,
@@ -174,10 +175,10 @@ exports.login = asyncHandler(async (req, res, next) => {
   let user;
   if (gmailID) {
     user = await roleDbModel.findOne({ gmailID });
-    if (!user) return next(new ErrRes('User not found', 404));
+    if (!user) return next(new ErrRes('User not found', 404, 'GmailID'));
   } else if (facebookID) {
     user = await roleDbModel.findOne({ facebookID });
-    if (!user) return next(new ErrRes('User not found', 404));
+    if (!user) return next(new ErrRes('User not found', 404, 'FacebookID'));
   } else {
     if (!(contactInfo && password))
       return next(new ErrRes('Please provide Contact Info & Password', 400));

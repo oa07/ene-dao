@@ -1,87 +1,89 @@
 import {
-  AUTH_LOADING,
-  AUTH_ERROR,
-  AUTH_SUCCESSFUL,
-  AUTH_NOT_SUCCESSFUL,
+  AUTH_LOADING_SIGNUP,
+  AUTH_ERROR_SIGNUP,
+  AUTH_SUCCESSFUL_SIGNUP,
+  AUTH_LOADING_LOGIN,
+  AUTH_ERROR_LOGIN,
+  AUTH_SUCCESSFUL_LOGIN,
   TOKENS,
 } from './types';
 
 import { emailCheck, phoneNoCheck } from '../utils/helper';
 
 export const registerCustomerAction = (authData) => async (dispatch) => {
-  console.log('In Register Customer Action');
-  console.log(authData);
-
   if (authData.password !== authData.confirmPassword) {
     dispatch({
-      type: AUTH_ERROR,
-      payload: `Password isn't matching`,
+      type: AUTH_ERROR_SIGNUP,
+      message: 'Password are not matching',
       errorField: 'Password',
     });
   } else {
-    dispatch({ type: AUTH_LOADING });
+    dispatch({ type: AUTH_LOADING_SIGNUP });
     const res = await fetch('/api/v1/auth/register/user', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(authData),
     });
     const data = await res.json();
-    console.log(data);
     if (!data.success) {
-      dispatch({ type: AUTH_NOT_SUCCESSFUL, payload: data.message });
+      dispatch({
+        type: AUTH_ERROR_SIGNUP,
+        message: data.message,
+        errorField: data.errorField,
+      });
     } else {
-      dispatch({ type: AUTH_SUCCESSFUL });
+      dispatch({ type: AUTH_SUCCESSFUL_SIGNUP });
     }
   }
 };
 
 export const loginAction = (authData) => async (dispatch) => {
   console.log('In Login Action');
+  console.log(authData);
   const { contactInfo, gmailID, facebookID } = authData;
 
   if (gmailID || facebookID) {
-    dispatch({ type: AUTH_LOADING });
-    console.log(authData);
-    const data = await sendLoginRequest(authData);
-    console.log(data.success);
-    if (!data.success) {
-      dispatch({ type: AUTH_NOT_SUCCESSFUL, payload: data.message });
-    } else {
-      dispatch({ type: AUTH_SUCCESSFUL });
-      const { accessToken, refreshToken } = data;
-      dispatch({ type: TOKENS, payload: { accessToken, refreshToken } });
-    }
+    console.log('In Gmail Facebook Section');
+    await sendLoginRequest(authData, dispatch);
   } else {
+    console.log('In Custom Login Section');
     if (!emailCheck(contactInfo) && !phoneNoCheck(contactInfo)) {
-      dispatch({ type: AUTH_ERROR, payload: 'Contact Info is invalid' });
+      console.log('eta email phone number na');
+      dispatch({
+        type: AUTH_ERROR_LOGIN,
+        message: 'Contact Info is invalid',
+        errorField: 'Contact Info',
+      });
     } else {
-      dispatch({ type: AUTH_LOADING });
-
       let loginUsing = 'EMAIL';
       if (phoneNoCheck(contactInfo)) loginUsing = 'PHONE';
       let mData = { ...authData, infoMed: loginUsing };
       if (loginUsing === 'PHONE')
         mData.contactInfo = `+88${authData.contactInfo}`;
 
-      const data = await sendLoginRequest(mData);
-      console.log('data => ', data);
-      if (!data.success) {
-        dispatch({ type: AUTH_NOT_SUCCESSFUL, payload: data.message });
-      } else {
-        dispatch({ type: AUTH_SUCCESSFUL });
-        const { accessToken, refreshToken } = data;
-        dispatch({ type: TOKENS, payload: { accessToken, refreshToken } });
-      }
+      await sendLoginRequest(mData, dispatch);
     }
   }
 };
 
-async function sendLoginRequest(reqBody) {
+async function sendLoginRequest(reqBody, dispatch) {
+  dispatch({ type: AUTH_LOADING_LOGIN });
   const res = await fetch('/api/v1/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(reqBody),
   });
   const data = await res.json();
-  return data;
+  console.log(data);
+  if (!data.success) {
+    dispatch({
+      type: AUTH_ERROR_LOGIN,
+      message: data.message,
+      errorField: data.errorField,
+    });
+  } else {
+    dispatch({ type: AUTH_SUCCESSFUL_LOGIN });
+    const { accessToken, refreshToken } = data;
+    dispatch({ type: TOKENS, payload: { accessToken, refreshToken } });
+  }
 }

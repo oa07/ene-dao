@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { FormGroup, Button } from 'reactstrap';
 import { Form } from 'react-final-form';
 import { Link, Redirect } from 'react-router-dom';
@@ -15,7 +15,7 @@ import { regCustomerValidator } from '../validations/register';
 
 const RegisterCustomer = (props) => {
   const { registerCustomerAction } = props;
-  const { isLoading, error, formSuccess } = props.auth;
+  const { isLoading, error, errorField, formSuccess } = props.auth;
 
   const onSubmit = async (values) => {
     await registerCustomerAction({
@@ -147,8 +147,7 @@ const RegisterCustomer = (props) => {
   );
 };
 
-const mapStateToProps = (state) => ({ auth: state.authReducer });
+const mapStateToProps = (state) => ({ auth: state.signupReducer });
+const mapDispatchToProps = { registerCustomerAction };
 
-export default connect(mapStateToProps, { registerCustomerAction })(
-  RegisterCustomer
-);
+export default connect(mapStateToProps, mapDispatchToProps)(RegisterCustomer);
