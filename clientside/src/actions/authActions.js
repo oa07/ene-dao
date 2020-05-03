@@ -20,7 +20,9 @@ export const stateInit = () => (dispatch) => {
   dispatch({ type: AUTH_LOGIN_INIT });
 };
 
-export const registerCustomerAction = (authData) => async (dispatch) => {
+export const registerCustomerAction = (authData, history) => async (
+  dispatch
+) => {
   console.log('In register action');
   dispatch({ type: AUTH_LOADING_SIGNUP });
   if (authData.password !== authData.confirmPassword) {
@@ -45,24 +47,20 @@ export const registerCustomerAction = (authData) => async (dispatch) => {
       });
     } else {
       dispatch({ type: AUTH_SUCCESSFUL_SIGNUP });
+      history.push('/auth/login');
     }
   }
 };
 
-export const loginAction = (authData) => async (dispatch) => {
-  dispatch({ type: AUTH_LOADING_LOGIN });
-
-  console.log('In Login Action');
+export const loginAction = (authData, history) => async (dispatch) => {
   console.log(authData);
+  dispatch({ type: AUTH_LOADING_LOGIN });
   const { contactInfo, gmailID, facebookID } = authData;
 
   if (gmailID || facebookID) {
-    console.log('In Gmail Facebook Section');
-    await sendLoginRequest(authData, dispatch, false);
+    await sendLoginRequest(authData, dispatch, history, false);
   } else {
-    console.log('In Custom Login Section');
     if (!emailCheck(contactInfo) && !phoneNoCheck(contactInfo)) {
-      console.log('eta email phone number na');
       dispatch({
         type: AUTH_ERROR_LOGIN,
         message: 'Contact Info is invalid',
@@ -75,7 +73,7 @@ export const loginAction = (authData) => async (dispatch) => {
       if (loginUsing === 'PHONE')
         mData.contactInfo = `+88${authData.contactInfo}`;
 
-      await sendLoginRequest(mData, dispatch);
+      await sendLoginRequest(mData, dispatch, history);
     }
   }
 };
@@ -83,8 +81,6 @@ export const loginAction = (authData) => async (dispatch) => {
 export const logoutAction = ({ accessToken, refreshToken }) => async (
   dispatch
 ) => {
-  console.log('Logout Action');
-  console.log({ accessToken, refreshToken });
   const res = await fetch(
     `/api/v1/auth/logout/${accessToken}/${refreshToken}`,
     {
@@ -105,7 +101,12 @@ export const logoutAction = ({ accessToken, refreshToken }) => async (
 // ###########################################################
 // ###########################################################
 
-async function sendLoginRequest(reqBody, dispatch, customLogin = true) {
+async function sendLoginRequest(
+  reqBody,
+  dispatch,
+  history,
+  customLogin = true
+) {
   const body = { ...reqBody, info: undefined };
   const res = await fetch('/api/v1/auth/login', {
     method: 'POST',
@@ -127,11 +128,13 @@ async function sendLoginRequest(reqBody, dispatch, customLogin = true) {
         type: AUTH_SIGNUP_THIRD_PARTY,
         payload: reqBody.info,
       });
+      history.push('/auth/register/customer');
     }
   } else {
     dispatch({ type: AUTH_SUCCESSFUL_LOGIN });
     const { accessToken, refreshToken } = data;
     dispatch({ type: TOKENS, payload: { accessToken, refreshToken } });
+    history.push('/user/profile');
   }
   console.log('Login Action Ends');
 }

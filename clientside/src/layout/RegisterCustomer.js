@@ -14,14 +14,8 @@ import { registerCustomerAction, stateInit } from '../actions/authActions';
 import { regCustomerValidator } from '../validations/register';
 
 const RegisterCustomer = (props) => {
-  const { registerCustomerAction, stateInit } = props;
-  const {
-    isLoading,
-    error,
-    formSuccess,
-    hasThirdPartyLogin,
-    ThirdPartyInfo,
-  } = props.auth;
+  const { registerCustomerAction } = props;
+  const { isLoading, error, hasThirdPartyLogin, ThirdPartyInfo } = props.auth;
   const { isAuthenticated } = props.cred;
 
   if (isAuthenticated) {
@@ -38,23 +32,21 @@ const RegisterCustomer = (props) => {
 
   const onSubmit = async (values) => {
     let using = {};
-    if (hasThirdPartyLogin && ThirdPartyInfo.using === 'FB') {
+    if (hasThirdPartyLogin && ThirdPartyInfo.using === 'FB')
       using.facebookID = ThirdPartyInfo.id;
-    }
-    if (hasThirdPartyLogin && ThirdPartyInfo.using === 'GMAIL') {
+
+    if (hasThirdPartyLogin && ThirdPartyInfo.using === 'GMAIL')
       using.gmailID = ThirdPartyInfo.id;
-    }
 
-    console.log('on submit => start action');
-    await registerCustomerAction({
-      ...values,
-      ...using,
-      contactNo: `+88${values.contactNo}`,
-      role: 'customer',
-    });
-    console.log('on submit => end action');
-
-    if (formSuccess) props.history.push('/auth/login');
+    await registerCustomerAction(
+      {
+        ...values,
+        ...using,
+        contactNo: `+88${values.contactNo}`,
+        role: 'customer',
+      },
+      props.history
+    );
   };
 
   return (

@@ -31,12 +31,13 @@ export default function (state = initialState, action) {
       };
     case AUTH_LOADING_SIGNUP:
       return {
-        ...initialState,
+        ...state,
         isLoading: true,
       };
     case AUTH_ERROR_SIGNUP:
       return {
-        ...initialState,
+        ...state,
+        isLoading: false,
         error: action.message,
         errorField: action.errorField,
       };

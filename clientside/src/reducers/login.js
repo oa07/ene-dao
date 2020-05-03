@@ -20,7 +20,7 @@ export default function (state = initialState, action) {
       };
     case AUTH_LOADING_LOGIN:
       return {
-        ...initialState,
+        ...state,
         isLoading: true,
       };
     case AUTH_ERROR_LOGIN:
@@ -31,7 +31,7 @@ export default function (state = initialState, action) {
       };
     case AUTH_SUCCESSFUL_LOGIN:
       return {
-        ...state,
+        ...initialState,
         formSuccess: true,
       };
 

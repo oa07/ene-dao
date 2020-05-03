@@ -17,7 +17,7 @@ import { loginValidator } from '../validations/login';
 
 const Login = (props) => {
   const { loginAction } = props;
-  const { isLoading, error, formSuccess } = props.auth;
+  const { isLoading, error } = props.auth;
   const { isAuthenticated } = props.cred;
 
   if (isAuthenticated) {
@@ -25,23 +25,31 @@ const Login = (props) => {
   }
 
   const onSubmit = async (values) => {
-    await loginAction({ ...values, role: 'USER' });
-    if (formSuccess) props.history.push('/user/profile');
+    await loginAction({ ...values, role: 'USER' }, props.history);
   };
 
   const responseGoogle = async (res) => {
-    console.log(res);
-    const { googleId, name, email } = res.profileObj;
-    const info = { id: googleId, name, email, using: 'GMAIL' };
-    await loginAction({ gmailID: res.profileObj.googleId, role: 'USER', info });
-    props.history.push('/auth/register/customer');
+    const { googleId: id, name, email, using = 'GMAIL' } = res.profileObj;
+    await loginAction(
+      {
+        gmailID: id,
+        role: 'USER',
+        info: { id, name, email, using },
+      },
+      props.history
+    );
   };
 
   const responseFacebook = async (res) => {
-    const { id, name, email } = res;
-    const info = { id, name, email, using: 'FB' };
-    await loginAction({ facebookID: id, role: 'USER', info });
-    props.history.push('/auth/register/customer');
+    const { id, name, email, using = 'FB' } = res;
+    await loginAction(
+      {
+        facebookID: id,
+        role: 'USER',
+        info: { id, name, email, using },
+      },
+      props.history
+    );
   };
 
   return (
