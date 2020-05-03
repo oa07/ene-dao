@@ -31,9 +31,10 @@ export default function (state = initialState, action) {
       };
     case AUTH_SUCCESSFUL_LOGIN:
       return {
-        ...initialState,
+        ...state,
         formSuccess: true,
       };
+
     default:
       return state;
   }

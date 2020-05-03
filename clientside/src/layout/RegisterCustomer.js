@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { FormGroup, Button } from 'reactstrap';
 import { Form } from 'react-final-form';
 import { Link, Redirect } from 'react-router-dom';
@@ -15,24 +15,46 @@ import { regCustomerValidator } from '../validations/register';
 
 const RegisterCustomer = (props) => {
   const { registerCustomerAction, stateInit } = props;
-  const { isLoading, error, errorField, formSuccess } = props.auth;
+  const {
+    isLoading,
+    error,
+    formSuccess,
+    hasThirdPartyLogin,
+    ThirdPartyInfo,
+  } = props.auth;
   const { isAuthenticated } = props.cred;
 
   if (isAuthenticated) {
     return <Redirect to={{ pathname: '/' }} />;
   }
 
-  if (formSuccess) {
-    stateInit(); // Seems problematic
-    return <Redirect to={{ pathname: '/auth/login' }} />;
+  let initialValues = {};
+  if (hasThirdPartyLogin) {
+    initialValues = {
+      fullname: ThirdPartyInfo.name,
+      email: ThirdPartyInfo.email,
+    };
   }
 
   const onSubmit = async (values) => {
+    let using = {};
+    if (hasThirdPartyLogin && ThirdPartyInfo.using === 'FB') {
+      using.facebookID = ThirdPartyInfo.id;
+    }
+    if (hasThirdPartyLogin && ThirdPartyInfo.using === 'GMAIL') {
+      using.gmailID = ThirdPartyInfo.id;
+    }
+
+    console.log('on submit => start action');
     await registerCustomerAction({
       ...values,
+      ...using,
       contactNo: `+88${values.contactNo}`,
       role: 'customer',
     });
+    console.log('on submit => end action');
+
+    if (formSuccess) props.history.push('/auth/login');
   };
 
   return (
@@ -46,6 +68,7 @@ const RegisterCustomer = (props) => {
           <ShowError error={error} />
           <Form
             onSubmit={onSubmit}
+            initialValues={initialValues}
             validate={regCustomerValidator}
             render={({ handleSubmit, form, submitting, pristine, values }) => (
               <form onSubmit={handleSubmit}>

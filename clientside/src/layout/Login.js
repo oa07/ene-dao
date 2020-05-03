@@ -16,8 +16,8 @@ import { loginAction, stateInit } from '../actions/authActions';
 import { loginValidator } from '../validations/login';
 
 const Login = (props) => {
-  const { loginAction, stateInit } = props;
-  const { isLoading, error, errorField, formSuccess } = props.auth;
+  const { loginAction } = props;
+  const { isLoading, error, formSuccess } = props.auth;
   const { isAuthenticated } = props.cred;
 
   if (isAuthenticated) {
@@ -26,22 +26,23 @@ const Login = (props) => {
 
   const onSubmit = async (values) => {
     await loginAction({ ...values, role: 'USER' });
+    if (formSuccess) props.history.push('/user/profile');
   };
 
   const responseGoogle = async (res) => {
-    console.log('Google Login Responsing');
-    await loginAction({ gmailID: res.profileObj.googleId, role: 'USER' });
+    console.log(res);
+    const { googleId, name, email } = res.profileObj;
+    const info = { id: googleId, name, email, using: 'GMAIL' };
+    await loginAction({ gmailID: res.profileObj.googleId, role: 'USER', info });
+    props.history.push('/auth/register/customer');
   };
 
   const responseFacebook = async (res) => {
-    console.log('Facebook Login Responsing');
-    await loginAction({ facebookID: res.id, role: 'USER' });
+    const { id, name, email } = res;
+    const info = { id, name, email, using: 'FB' };
+    await loginAction({ facebookID: id, role: 'USER', info });
+    props.history.push('/auth/register/customer');
   };
-
-  if (formSuccess) {
-    stateInit(); // Seems problematic
-    return <Redirect to={{ pathname: '/user/profile' }} />;
-  }
 
   return (
     <div className='authContainer'>
@@ -143,6 +144,8 @@ const Login = (props) => {
 const mapStateToProps = (state) => ({
   auth: state.loginReducer,
   cred: state.credentialReducer,
+  addExtraField: state.signupReducer.addExtraField,
+  addExtraPayload: state.signupReducer.addExtraPayload,
 });
 
 const mapDispatchToAction = { loginAction, stateInit };

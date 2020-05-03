@@ -3,6 +3,7 @@ import {
   AUTH_LOADING_SIGNUP,
   AUTH_ERROR_SIGNUP,
   AUTH_SUCCESSFUL_SIGNUP,
+  AUTH_SIGNUP_THIRD_PARTY,
 } from '../actions/types';
 
 const initialState = {
@@ -10,6 +11,8 @@ const initialState = {
   error: undefined,
   errorField: undefined,
   formSuccess: false,
+  hasThirdPartyLogin: false,
+  ThirdPartyInfo: undefined,
 };
 
 export default function (state = initialState, action) {
@@ -41,6 +44,12 @@ export default function (state = initialState, action) {
       return {
         ...initialState,
         formSuccess: true,
+      };
+    case AUTH_SIGNUP_THIRD_PARTY:
+      return {
+        ...initialState,
+        hasThirdPartyLogin: true,
+        ThirdPartyInfo: action.payload,
       };
     default:
       return state;
