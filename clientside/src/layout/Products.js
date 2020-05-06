@@ -32,41 +32,32 @@ export default function Products() {
                 <p> Category </p>
               </div>
               <div className='categories'>
-                <div className='custom-control custom-radio'>
-                  <input
-                    type='radio'
-                    className='custom-control-input'
-                    id='customRadio11'
-                    name='example1'
-                    value='customEx'
-                  />
-                  <label className='custom-control-label' for='customRadio11'>
-                    x
-                  </label>
+                <div className='cat'>
+                  <i className='fa fa-angle-right'></i> <span>Category</span>
                 </div>
-                <div className='custom-control custom-radio'>
-                  <input
-                    type='radio'
-                    className='custom-control-input'
-                    id='customRadio112'
-                    name='example1'
-                    value='customEx'
-                  />
-                  <label className='custom-control-label' for='customRadio112'>
-                    y
-                  </label>
+                <div className='cat'>
+                  <i className='fa fa-angle-right'></i> <span>Category</span>
                 </div>
-                <div className='custom-control custom-radio'>
-                  <input
-                    type='radio'
-                    className='custom-control-input'
-                    id='customRadio113'
-                    name='example1'
-                    value='customEx'
-                  />
-                  <label className='custom-control-label' for='customRadio113'>
-                    z
-                  </label>
+                <div className='cat'>
+                  <i className='fa fa-angle-right'></i> <span>Category</span>
+                </div>
+                <div className='cat'>
+                  <i className='fa fa-angle-right'></i> <span>Category</span>
+                </div>
+                <div className='cat'>
+                  <i className='fa fa-angle-right'></i> <span>Category</span>
+                </div>
+                <div className='cat'>
+                  <i className='fa fa-angle-right'></i> <span>Category</span>
+                </div>
+                <div className='cat'>
+                  <i className='fa fa-angle-right'></i> <span>Category</span>
+                </div>
+                <div className='cat'>
+                  <i className='fa fa-angle-right'></i> <span>Category</span>
+                </div>
+                <div className='cat'>
+                  <i className='fa fa-angle-right'></i> <span>Category</span>
                 </div>
               </div>
             </div>
@@ -85,8 +76,14 @@ export default function Products() {
                 />
               </div>
               <div className='searchSection_flx_chld'>
-                <Dropdown isOpen={dropdownOpen} toggle={toggle}>
-                  <DropdownToggle caret>{dropdownValue}</DropdownToggle>
+                <Dropdown
+                  isOpen={dropdownOpen}
+                  toggle={toggle}
+                  className='w-100'
+                >
+                  <DropdownToggle caret className='w-100'>
+                    {dropdownValue}
+                  </DropdownToggle>
                   <DropdownMenu>
                     <DropdownItem onClick={changeValue}>
                       Some Action
