@@ -34,9 +34,16 @@ const NavBar = (props) => {
                   <Input placeholder='Search your product' />
                 </InputGroup>
               </NavItem>
-              <NavItem>
-                <NavLink href='#'>Enlist your Fav Store</NavLink>
+              <NavItem className='pr-3'>
+                <NavLink href='/products'>Products</NavLink>
               </NavItem>
+              {isAuthenticated && (
+                <NavItem>
+                  <NavLink href='#' className='pr-3'>
+                    <i className='fa fa-cart-plus pr-1'></i> My Cart
+                  </NavLink>
+                </NavItem>
+              )}
               <NavItem>
                 <NavLink href='#'>Contact Us</NavLink>
               </NavItem>

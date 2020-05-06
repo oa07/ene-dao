@@ -7,6 +7,7 @@ import Login from './layout/Login';
 import Homepage from './layout/Homepage';
 import PageNotFound from './layout/PageNotFound';
 import UserProfile from './layout/UserProfile';
+import Products from './layout/Products';
 
 import { Provider } from 'react-redux';
 
@@ -29,8 +30,10 @@ export default (props) => {
               path='/auth/register/customer'
               component={RegisterCustomer}
             />
+
             <Route exact path='/auth/login' component={Login} />
-            <ProtectedRoute url='/user/profile' component={UserProfile} />
+            <Route exact path='/products' component={Products} />
+            <ProtectedRoute path='/user/profile' component={UserProfile} />
             <Route path='*' component={PageNotFound} />
           </Switch>
         </div>

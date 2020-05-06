@@ -1,0 +1,31 @@
+.userProfile {
+  font-family: 'Open Sans', sans-serif;
+
+  .userProfile_heading {
+    margin-bottom: 30px;
+  }
+}
+
+.table {
+  tbody {
+    font-size: 15px;
+    th {
+      // color: #90949c;
+      padding-left: 30px;
+    }
+    td {
+      color: rgb(39, 39, 39);
+    }
+  }
+  thead {
+    th {
+      cursor: pointer;
+      // color: #90949c;
+      font-weight: 700;
+      line-height: 1.6;
+      letter-spacing: 1px;
+      font-size: 1.2rem;
+      border-top: 0px solid #dee2e6;
+    }
+  }
+}

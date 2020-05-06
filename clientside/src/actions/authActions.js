@@ -13,7 +13,6 @@ import {
 } from './types';
 
 import { emailCheck, phoneNoCheck } from '../utils/helper';
-import { info } from 'winston';
 
 export const stateInit = () => (dispatch) => {
   dispatch({ type: AUTH_SIGNUP_INIT });
@@ -78,6 +77,10 @@ export const loginAction = (authData, history) => async (dispatch) => {
   }
 };
 
+export const getUserInfo = ({ accessToken, refreshToken }) => async (
+  dispatch
+) => {};
+
 export const logoutAction = ({ accessToken, refreshToken }) => async (
   dispatch
 ) => {
@@ -133,8 +136,20 @@ async function sendLoginRequest(
   } else {
     dispatch({ type: AUTH_SUCCESSFUL_LOGIN });
     const { accessToken, refreshToken } = data;
-    dispatch({ type: TOKENS, payload: { accessToken, refreshToken } });
-    history.push('/user/profile');
+    const userInfo = await fetch(`/api/v1/auth/view-profile`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    const user = await userInfo.json();
+    if (user.success) {
+      dispatch({
+        type: TOKENS,
+        payload: { accessToken, refreshToken, user: user.user },
+      });
+      history.push('/user/profile');
+    }
   }
   console.log('Login Action Ends');
 }
