@@ -3,81 +3,97 @@ const mongoose = require('mongoose');
 const prodSchema = new mongoose.Schema({
   prodName: {
     type: String,
-    required: true
+    required: true,
   },
   prodDesc: {
     type: String,
-    required: true
+    required: true,
   },
   prodImage: {
     type: String,
-    required: true
+    required: true,
   },
   price: {
     type: Number,
-    required: true
+    required: true,
   },
   MRP: {
     type: Number,
-    required: true
+    required: true,
   },
   prodCategory: {
     type: String,
-    required: true
+    required: true,
   },
   rating: [
     {
       userID: String,
-      rating: String
-    }
+      rating: String,
+    },
   ],
   feedback: [
     {
       userID: String,
-      feedback: String
-    }
+      feedback: String,
+    },
   ],
   popularity: {
     type: String,
-    default: 0
+    default: 0,
   },
   createdAt: {
     type: Date,
-    default: Date.now()
-  }
+    default: Date.now(),
+  },
 });
 
 const orderSchema = new mongoose.Schema({
   userID: {
     type: String,
-    required: true
+    required: true,
   },
   orders: [
     {
       prodID: {
         type: String,
-        required: true
+        required: true,
       },
       quantity: {
         type: Number,
-        required: true
+        required: true,
       },
       shopID: {
         type: String,
-        required: true
-      }
-    }
+        required: true,
+      },
+    },
   ],
   order_status: {
     type: String,
     required: true,
-    enum: ['ORDER_PLACED', 'DELIVERED']
+    enum: ['ORDER_PLACED', 'DELIVERED'],
   },
   createdAt: {
     type: Date,
-    default: Date.now()
-  }
+    default: Date.now(),
+  },
+});
+
+const categorySchema = new mongoose.Schema({
+  categoryName: {
+    type: String,
+    required: true,
+  },
+  sellCount: {
+    type: Number,
+    default: 0,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now(),
+  },
 });
 
 exports.productModel = mongoose.model('prod', prodSchema);
 exports.OrderModel = mongoose.model('order', orderSchema);
+exports.CategoryModel = mongoose.model('category', categorySchema);

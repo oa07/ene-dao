@@ -1,0 +1,45 @@
+.adminCategory_search,
+.updateCateogoryModal {
+  input[type='text'] {
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+  }
+  input[type='submit'] {
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+  }
+}
+
+.adminCategory_all {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  .adminCategory_each {
+    width: 30%;
+    border: 1px solid #b6b5b5;
+    margin: 10px;
+    padding: 6px 15px;
+
+    display: flex;
+    justify-content: space-between;
+    .adminCategory_each_name {
+      padding-top: 5px;
+      padding-right: 7px;
+    }
+    .adminCategory_each_icons {
+      .fa {
+        padding: 8px 10px;
+        font-size: 20px;
+        cursor: pointer;
+        border-radius: 10px;
+
+        &:hover {
+          background: #e4e3e3;
+        }
+        &:active {
+          background: #c3c3c3;
+        }
+      }
+    }
+  }
+}

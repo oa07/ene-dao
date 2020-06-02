@@ -1,6 +1,6 @@
 import React from 'react';
-import NavBar from './components/NavBar';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import { connect } from 'react-redux';
 
 import RegisterCustomer from './layout/RegisterCustomer';
 import Login from './layout/Login';
@@ -9,35 +9,80 @@ import PageNotFound from './layout/PageNotFound';
 import UserProfile from './layout/UserProfile';
 import Products from './layout/Products';
 
-import { Provider } from 'react-redux';
+import AdminLogin from './layout/admin/AdminLogin';
+import AdminDashboard from './layout/admin/AdminDashboard';
+import AdminProductCategory from './layout/admin/ProductCategory';
+import AdminProducts from './layout/admin/Products';
+import AdminAddProduct from './layout/admin/AddProduct';
 
-import ProtectedRoute from './components/ProtectedRoute';
+const App = (props) => {
+  const {
+    cred: { isAuthenticated, userInfo },
+  } = props;
+  const protectedRoute = (role = undefined, component) => {
+    if (role === 'admin') {
+      return userInfo.role === 'admin' ? component : AdminLogin;
+    } else {
+      return isAuthenticated ? component : Login;
+    }
+  };
 
-import store from './store';
-
-export default (props) => {
   return (
-    <Provider store={store}>
-      <Router>
-        <div className='app'>
-          <div>
-            <NavBar />
-          </div>
-          <Switch>
-            <Route exact path='/' component={Homepage} />
-            <Route
-              exact
-              path='/auth/register/customer'
-              component={RegisterCustomer}
-            />
+    <Router>
+      <div className='app'>
+        <Switch>
+          <Route exact path='/' component={Homepage} />
+          <Route
+            exact
+            path='/auth/register/customer'
+            component={RegisterCustomer}
+          />
 
-            <Route exact path='/auth/login' component={Login} />
-            <Route exact path='/products' component={Products} />
-            <ProtectedRoute path='/user/profile' component={UserProfile} />
-            <Route path='*' component={PageNotFound} />
-          </Switch>
-        </div>
-      </Router>
-    </Provider>
+          <Route exact path='/auth/login' component={Login} />
+          <Route exact path='/products' component={Products} />
+
+          <Route exact path='/admin/login' component={AdminLogin} />
+          <Route
+            exact
+            path='/user/profile'
+            component={protectedRoute(UserProfile)}
+          />
+
+          <Route
+            exact
+            role='admin'
+            path={['/admin', '/admin/Dashboard']}
+            component={protectedRoute('admin', AdminDashboard)}
+          />
+
+          <Route
+            exact
+            role='admin'
+            path='/admin/products/category'
+            component={protectedRoute('admin', AdminProductCategory)}
+          />
+          <Route
+            exact
+            role='admin'
+            path='/admin/products'
+            component={protectedRoute('admin', AdminProducts)}
+          />
+          <Route
+            exact
+            role='admin'
+            path='/admin/products/new'
+            component={protectedRoute('admin', AdminAddProduct)}
+          />
+          <Route path='*' component={PageNotFound} />
+        </Switch>
+      </div>
+    </Router>
   );
 };
+
+const mapStateToProps = (state) => ({
+  cred: state.credentialReducer,
+});
+
+const mapDispatchToAction = {};
+export default connect(mapStateToProps, mapDispatchToAction)(App);

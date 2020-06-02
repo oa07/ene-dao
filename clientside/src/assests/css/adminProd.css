@@ -1,0 +1,16 @@
+.seeCategoryBtn {
+  width: 85%;
+  margin: auto;
+  text-align: right;
+}
+
+@media (max-width: 1320px) {
+  .seeCategoryBtn {
+    width: 98%;
+  }
+}
+
+.seeCategoryBtn button {
+  margin-right: 10px;
+  margin-bottom: 4px;
+}

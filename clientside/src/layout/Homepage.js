@@ -1,9 +1,17 @@
 import React from 'react';
+import NavBar from '../components/NavBar';
 
 export default function Homepage() {
   return (
     <div>
-      <p> I am in Homepage </p>
+      <div>
+        <NavBar />
+      </div>
+      <section className='homepage'>
+        <div className='homepage_heading text-center pt-3'>
+          <h1> Homepage </h1>
+        </div>
+      </section>
     </div>
   );
 }

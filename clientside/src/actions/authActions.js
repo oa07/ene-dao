@@ -10,9 +10,61 @@ import {
   AUTH_SIGNUP_THIRD_PARTY,
   TOKENS,
   LOGOUT,
+  AUTH_ADMIN_LOGIN_INIT,
+  AUTH_ADMIN_LOGIN_LOADING,
+  AUTH_ADMIN_LOGIN_SUCCESSFUL,
+  AUTH_ADMIN_LOGIN_ERROR,
 } from './types';
 
 import { emailCheck, phoneNoCheck } from '../utils/helper';
+
+/* ************************************************
+  @Action : Admin Login
+  @Routes : 1. /api/v1/auth/admin/login
+
+*************************************************** */
+export const adminLoginAction = (auth, history) => async (dispatch) => {
+  dispatch({ type: AUTH_ADMIN_LOGIN_LOADING });
+  const res = await fetch('/api/v1/auth/admin/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(auth),
+  });
+  const data = await res.json();
+  if (!data.success) {
+    dispatch({
+      type: AUTH_ADMIN_LOGIN_ERROR,
+      message: data.message,
+      errorField: data.errorField,
+    });
+  } else {
+    dispatch({ type: AUTH_ADMIN_LOGIN_SUCCESSFUL });
+    const { accessToken, refreshToken } = data;
+    const getUserInfo = await GetUser(data);
+    if (getUserInfo.success) {
+      dispatch({
+        type: TOKENS,
+        payload: { accessToken, refreshToken, user: getUserInfo.user },
+      });
+      history.push('/admin');
+    } else {
+      await logoutAction(accessToken, refreshToken);
+    }
+  }
+};
+
+/* ************************************************
+  @Action : Logout
+  @Routes : 1. /api/v1/auth/logout/:accessToken/:refreshToken
+
+*************************************************** */
+export const logoutAction = (accessToken, refreshToken) => async (dispatch) => {
+  await fetch(`/api/v1/auth/logout/${accessToken}/${refreshToken}`, {
+    method: 'GET',
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  dispatch({ type: LOGOUT });
+};
 
 export const stateInit = () => (dispatch) => {
   dispatch({ type: AUTH_SIGNUP_INIT });
@@ -81,24 +133,6 @@ export const getUserInfo = ({ accessToken, refreshToken }) => async (
   dispatch
 ) => {};
 
-export const logoutAction = ({ accessToken, refreshToken }) => async (
-  dispatch
-) => {
-  const res = await fetch(
-    `/api/v1/auth/logout/${accessToken}/${refreshToken}`,
-    {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    }
-  );
-  const data = await res.json();
-  if (data.success) {
-    dispatch({ type: LOGOUT });
-  }
-};
-
 // ###########################################################
 // ###########################################################
 // ###########################################################
@@ -152,4 +186,31 @@ async function sendLoginRequest(
     }
   }
   console.log('Login Action Ends');
+}
+
+/* ************************************************
+  @Function : Get User Informations from Tokens
+  @Routes   : 1. /api/v1/auth/view-profile
+
+*************************************************** */
+
+async function GetUser({ accessToken, refreshToken }) {
+  const userInfo = await fetch(`/api/v1/auth/view-profile`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+  const user = await userInfo.json();
+  if (user.success) {
+    return {
+      success: true,
+      user: user.user,
+    };
+  } else {
+    // If AccessToken Expires...
+    // request for a AccessToken from RefreshToken
+    // If RefreshToken Expires, return false
+    // Need Works
+  }
 }

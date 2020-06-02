@@ -15,20 +15,28 @@ exports.verifyToken = asyncHandler(async (req, res, next) => {
     try {
       const isBlackListed = await redis.get(`BlackListed${accessToken}`);
       if (isBlackListed) {
-        return next(new ErrRes('Access token is invalid', 401));
+        return next(new ErrRes('Access token is invalid', 401, 'ACCESS_TOKEN'));
       }
       const decoded = await jwt.verify(accessToken, config.jwtAccessKey);
-      const properModel = getModel(decoded.role);
-      const user = await properModel.findById(decoded.id);
-      if (!user) return next(new ErrRes('User not found', 404));
-      req.user = user;
-      req.AuthModel = properModel;
+      if (decoded.role === 'admin') {
+        req.user = {
+          _id: config.adminID,
+          username: config.adminUsername,
+          role: 'admin',
+        };
+      } else {
+        const properModel = getModel(decoded.role);
+        const user = await properModel.findById(decoded.id);
+        if (!user) return next(new ErrRes('User not found', 404));
+        req.user = user;
+        req.AuthModel = properModel;
+      }
       next();
     } catch (err) {
-      return next(new ErrRes('Refersh this token !!', 401));
+      return next(new ErrRes('Refersh this token !!', 401, 'REFRESH_TOKEN'));
     }
   } else {
-    return next(new ErrRes('Enter a valid token !!', 401));
+    return next(new ErrRes('Enter a valid token !!', 401, 'NO_VALID_TOKEN'));
   }
 });
 

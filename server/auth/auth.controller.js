@@ -1,3 +1,8 @@
+/*
+  01. Admin login
+  02. View Profile
+*/
+
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const logger = require('../../config/logger')(module);
@@ -20,12 +25,99 @@ const {
   createNewPasswordVal,
   resetPasswordVal,
   forgetPasswordVal,
+  adminLoginValidation,
 } = require('./auth.validation');
 const { userModel, adminModel, contactUsModel } = require('./auth.model');
 const {
   sendMailForVerifyAccount,
   sendMailForgetPasswordToken,
 } = require('../../config/sendMail');
+
+/*
+  @serial :   01
+  @route  :   /api/v1/auth/admin/login
+  @access :   Public
+  @method :   POST
+  @desc   :   Admin login
+
+*/
+
+exports.adminLogin = asyncHandler(async (req, res, next) => {
+  const { error } = adminLoginValidation(req.body);
+  if (error) {
+    const joiErr = joiErrMsg(error);
+    logger.error(joiErr.message);
+    return next(new ErrRes(joiErr.message, 400, joiErr.errorField));
+  }
+  const { username, password } = req.body;
+  const { adminUsername, adminPassword, adminID } = config;
+  if (username !== adminUsername || password !== adminPassword) {
+    logger.error('User not found');
+    return next(new ErrRes('User not found', 401));
+  }
+  const accessToken = await jwt.sign(
+    { id: adminID, username: adminUsername, role: 'admin' },
+    config.jwtAccessKey,
+    { expiresIn: config.jwtAccessKeyExpireTime }
+  );
+  const refreshToken = await jwt.sign(
+    { id: adminID, username: adminUsername, role: 'admin' },
+    config.jwtRefreshKey,
+    { expiresIn: config.jwtRefreshKeyExpireTime }
+  );
+  return res.status(200).json({ success: true, accessToken, refreshToken });
+});
+
+/*
+  @serial :   02
+  @route  :   /api/v1/auth/view-profile
+  @access :   Private
+  @method :   GET
+  @desc   :   View Profile
+
+*/
+
+exports.viewProfile = asyncHandler(async (req, res, next) => {
+  return res.status(200).json({ success: true, user: req.user });
+});
+
+/*
+  @serial :   03
+  @route  :   /api/v1/auth/logout/:accessToken/:refreshToken
+  @access :   Private
+  @method :   GET
+  @desc   :   Log out
+
+*/
+
+exports.logout = asyncHandler(async (req, res, next) => {
+  const { refreshToken, accessToken } = req.params;
+  if (!refreshToken || !accessToken) {
+    return next(new ErrRes('Both tokens must be present!!', 404));
+  }
+  try {
+    const decodedAT = await jwt.verify(accessToken, config.jwtAccessKey);
+    const decodedRT = await jwt.verify(refreshToken, config.jwtRefreshKey);
+
+    const timeAT =
+      decodedAT.exp * 1000 +
+      new Date(decodedAT.exp * 1000).getTimezoneOffset() * 60 * 1000 -
+      (Date.now() + new Date(Date.now()).getTimezoneOffset() * 60 * 1000) +
+      1;
+
+    const timeRT =
+      decodedRT.exp * 1000 +
+      new Date(decodedRT.exp * 1000).getTimezoneOffset() * 60 * 1000 -
+      (Date.now() + new Date(Date.now()).getTimezoneOffset() * 60 * 1000) +
+      1;
+
+    await redis.set(`BlackListed${refreshToken}`, accessToken, 'PX', timeAT);
+    await redis.set(`BlackListed${accessToken}`, refreshToken, 'PX', timeRT);
+    return res.status(200).json({ success: true });
+  } catch (err) {
+    return next(new ErrRes('Tokens are invalid', 404));
+  }
+});
 
 exports.registerUser = asyncHandler(async (req, res, next) => {
   const { error } = userValidation(req.body);
@@ -238,40 +330,7 @@ exports.tokenRefresher = asyncHandler(async (req, res, next) => {
     return next(new ErrRes('Refresh Token is Expired', 401));
   }
 });
-exports.logout = asyncHandler(async (req, res, next) => {
-  const { refreshToken, accessToken } = req.params;
-  if (!refreshToken || !accessToken) {
-    return next(new ErrRes('Both tokens must be present!!', 404));
-  }
-  try {
-    const decodedAT = await jwt.verify(accessToken, config.jwtAccessKey);
-    const decodedRT = await jwt.verify(refreshToken, config.jwtRefreshKey);
 
-    const timeAT =
-      decodedAT.exp * 1000 +
-      new Date(decodedAT.exp * 1000).getTimezoneOffset() * 60 * 1000 -
-      (Date.now() + new Date(Date.now()).getTimezoneOffset() * 60 * 1000) +
-      1;
-
-    const timeRT =
-      decodedRT.exp * 1000 +
-      new Date(decodedRT.exp * 1000).getTimezoneOffset() * 60 * 1000 -
-      (Date.now() + new Date(Date.now()).getTimezoneOffset() * 60 * 1000) +
-      1;
-
-    await redis.set(`BlackListed${refreshToken}`, accessToken, 'PX', timeAT);
-    await redis.set(`BlackListed${accessToken}`, refreshToken, 'PX', timeRT);
-    return res.status(200).json({ success: true });
-  } catch (err) {
-    return next(new ErrRes('Tokens are invalid', 404));
-  }
-});
-exports.viewProfile = asyncHandler(async (req, res, next) => {
-  return res.status(200).json({
-    success: true,
-    user: req.user,
-  });
-});
 exports.updateProfile = asyncHandler(async (req, res, next) => {
   let { fullname, email, contactNo, location } = req.body;
   if (!fullname) fullname = req.user.fullname;

@@ -12,7 +12,6 @@ mongoose.connect(
   },
   () => logger.info('connected to database!')
 );
-
 app.listen(config.port, () =>
   logger.info(`Server is running on ${config.port}`)
 );

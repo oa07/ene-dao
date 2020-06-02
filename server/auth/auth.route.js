@@ -14,17 +14,20 @@ const {
   forgetPasswordSendToken,
   forgetPasswordRecieveToken,
   resetPassword,
+  adminLogin,
 } = require('./auth.controller');
 
 const { verifyToken } = require('../middleware/authorization');
+
+router.post('/admin/login', adminLogin);
+router.get('/view-profile', verifyToken, viewProfile);
+router.get('/logout/:accessToken/:refreshToken', verifyToken, logout);
 
 router.post('/register/user', registerUser);
 router.post('/register/admin', registerAdmin);
 router.post('/login', login);
 router.get('/verify-account', verifyAccount);
 router.get('/token-refresher', tokenRefresher);
-router.get('/logout/:accessToken/:refreshToken', verifyToken, logout);
-router.get('/view-profile', verifyToken, viewProfile);
 router.post('/update-details', verifyToken, updateProfile);
 router.post('/contact-us', verifyToken, contactUs);
 

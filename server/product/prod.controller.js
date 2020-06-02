@@ -1,12 +1,24 @@
 const joiErrMsg = require('../utils/JoiErrorMessage');
 const asyncHandler = require('../middleware/async');
 const ErrRes = require('../utils/errorResponse');
+const logger = require('../../config/logger')(module);
 
-const { productModel, OrderModel } = require('./prod.model');
-const { productValidation } = require('./prod.validation');
+const { productModel, OrderModel, categoryModel } = require('./prod.model');
+const { productValidation, categoryValidation } = require('./prod.validation');
 
 const { userModel } = require('../auth/auth.model');
 const { shopModel } = require('../shop/shop.model');
+
+const { showError } = require('../utils/showError');
+
+exports.createCategory = asyncHandler(async (req, res, next) => {
+  const { categoryName } = req.body;
+  const { error } = categoryValidation({ categoryName });
+  if (error) return showError(next, error);
+  const category = new categoryModel({ categoryName });
+  await category.save();
+  return res.status(201).json({ success: true, categoryID: category._id });
+});
 
 exports.uploadProducts = asyncHandler(async (req, res, next) => {
   const { error } = productValidation(req.body);
@@ -24,7 +36,7 @@ exports.updateProducts = asyncHandler(async (req, res, next) => {
     price,
     MRP,
     prodCategory,
-    prodID
+    prodID,
   } = req.body;
 
   const product = await productModel.findById(prodID);
@@ -42,13 +54,13 @@ exports.updateProducts = asyncHandler(async (req, res, next) => {
     price,
     MRP,
     prodCategory,
-    prodID
+    prodID,
   };
   const updatedProd = await productModel.findByIdAndUpdate(
     prodID,
     fieldsToUpdate,
     {
-      new: true
+      new: true,
     }
   );
 
@@ -95,11 +107,11 @@ exports.processOrder = asyncHandler(async (req, res, next) => {
   const orderPlaced = new OrderModel({
     userID: req.user._id,
     orders: orderedProducts,
-    order_status: 'ORDER_PLACED'
+    order_status: 'ORDER_PLACED',
   });
   await orderPlaced.save();
   return res.status(201).json({
-    success: true
+    success: true,
   });
 });
 
@@ -138,7 +150,7 @@ exports.userSeeCustomerFeedback = asyncHandler(async (req, res, next) => {
   const { rating, feedback } = prod;
   return res.status(200).json({
     rating,
-    feedback
+    feedback,
   });
 });
 

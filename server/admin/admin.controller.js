@@ -7,8 +7,42 @@ const ErrRes = require('../utils/errorResponse');
 const config = require('../../config/config');
 
 const { shopModel } = require('../shop/shop.model');
-const { OrderModel, productModel } = require('../product/prod.model');
+const {
+  OrderModel,
+  productModel,
+  CategoryModel,
+} = require('../product/prod.model');
 const { userModel } = require('../auth/auth.model');
+
+exports.fetchAllCategories = asyncHandler(async (req, res, next) => {
+  const categories = await CategoryModel.find()
+    .sort({ _id: -1 })
+    .select('_id categoryName');
+  return res.json({ success: true, categories });
+});
+
+exports.newCategory = asyncHandler(async (req, res, next) => {
+  if (!req.body.categoryName) {
+    return next(new ErrRes('Category name is required', 404));
+  }
+  const category = new CategoryModel({
+    categoryName: req.body.categoryName,
+  });
+  await category.save();
+  return res.status(201).json({ success: true, category });
+});
+
+exports.updateCategory = asyncHandler(async (req, res, next) => {
+  await CategoryModel.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+  });
+  return res.status(200).json({ success: true });
+});
+
+exports.deleteCategory = asyncHandler(async (req, res, next) => {
+  await CategoryModel.findByIdAndDelete(req.params.id);
+  return res.json({ success: true });
+});
 
 exports.totalShops = asyncHandler(async (req, res, next) => {
   const countShops = await shopModel.countDocuments();
@@ -21,21 +55,21 @@ exports.TotalNumberOfOrders = asyncHandler(async (req, res, next) => {
   const month = Date.now() - 30 * 24 * 60 * 60 * 1000;
 
   const countOrdersPerDay = await OrderModel.find({
-    createdAt: { $gt: yesterday }
+    createdAt: { $gt: yesterday },
   }).countDocuments();
 
   const countOrdersPerWeek = await OrderModel.find({
-    createdAt: { $gt: week }
+    createdAt: { $gt: week },
   }).countDocuments();
 
   const countOrdersPerMonth = await OrderModel.find({
-    createdAt: { $gt: month }
+    createdAt: { $gt: month },
   }).countDocuments();
 
   return res.json({
     perDay: countOrdersPerDay,
     perWeek: countOrdersPerWeek,
-    perMonth: countOrdersPerMonth
+    perMonth: countOrdersPerMonth,
   });
 });
 

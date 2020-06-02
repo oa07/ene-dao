@@ -1,5 +1,11 @@
 const Joi = require('@hapi/joi');
 
+exports.adminLoginValidation = (data) =>
+  Joi.object({
+    username: Joi.string().required().label('Username'),
+    password: Joi.string().required().label('Password'),
+  }).validate(data);
+
 exports.userValidation = (data) =>
   Joi.object({
     gmailID: Joi.string().label('Gmail ID'),

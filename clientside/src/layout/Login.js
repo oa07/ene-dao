@@ -5,6 +5,7 @@ import { Link, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
 import GoogleLogin from 'react-google-login';
+import NavBar from '../components/NavBar';
 
 import '../assests/css/auth.css';
 import AuthImage from '../assests/images/auth_image.jpg';
@@ -53,95 +54,106 @@ const Login = (props) => {
   };
 
   return (
-    <div className='authContainer'>
-      <div className={isLoading ? 'loader' : ''}></div>
-      <div className={isLoading ? 'auth lessOpacity' : 'auth'}>
-        <div className='auth_side_img'>
-          <img src={AuthImage} alt='demoImage' />
-        </div>
-        <div className='auth_form  px-2'>
-          <ShowError error={error} />
-          <Form
-            onSubmit={onSubmit}
-            validate={loginValidator}
-            render={({ handleSubmit, form, submitting, pristine, values }) => (
-              <form onSubmit={handleSubmit}>
-                <FormGroup>
-                  <div className='erow'>
-                    <InputField
-                      Name='contactInfo'
-                      Type='text'
-                      ID='contactInfoID'
-                      Placeholder='Email / Phone number'
-                    />
-                  </div>
-                  <div className='erow'>
-                    <InputField
-                      Name='password'
-                      Type='password'
-                      ID='passwordID'
-                      Placeholder='Password'
-                    />
-                  </div>
-                </FormGroup>
-                <FormGroup>
-                  <div className='submit-btn text-center'>
-                    <Button
-                      type='submit'
-                      id='submitID'
-                      className='btn btn-dark px-5 py-2'
-                      disabled={submitting || pristine}
-                    >
-                      Signin
-                    </Button>
-                  </div>
-                </FormGroup>
-              </form>
-            )}
-          ></Form>
-
-          <div className='fbGmailLogin'>
-            <div className='gmail-btn py-2'>
-              <GoogleLogin
-                clientId='501935314157-nnfh7nvah1p9n1smdbj6ejt1avc6s22u.apps.googleusercontent.com'
-                render={(renderProps) => (
-                  <Button
-                    className='btn btn-dark btn-block'
-                    onClick={renderProps.onClick}
-                    disabled={renderProps.disabled}
-                  >
-                    Login with Gmail
-                  </Button>
-                )}
-                buttonText='Login'
-                onSuccess={responseGoogle}
-                onFailure={responseGoogle}
-                cookiePolicy={'single_host_origin'}
-              />
-            </div>
-
-            <div className='fb-btn'>
-              <FacebookLogin
-                appId='2643388962571610'
-                fields='name,email,picture'
-                callback={responseFacebook}
-                render={(renderProps) => (
-                  <Button
-                    className='btn btn-dark btn-block'
-                    onClick={renderProps.onClick}
-                  >
-                    Login with Facebook
-                  </Button>
-                )}
-              />
-            </div>
+    <div>
+      <div>
+        <NavBar />
+      </div>
+      <div className='authContainer'>
+        <div className={isLoading ? 'loader' : ''}></div>
+        <div className={isLoading ? 'auth lessOpacity' : 'auth'}>
+          <div className='auth_side_img'>
+            <img src={AuthImage} alt='demoImage' />
           </div>
+          <div className='auth_form  px-2'>
+            <ShowError error={error} />
+            <Form
+              onSubmit={onSubmit}
+              validate={loginValidator}
+              render={({
+                handleSubmit,
+                form,
+                submitting,
+                pristine,
+                values,
+              }) => (
+                <form onSubmit={handleSubmit}>
+                  <FormGroup>
+                    <div className='erow'>
+                      <InputField
+                        Name='contactInfo'
+                        Type='text'
+                        ID='contactInfoID'
+                        Placeholder='Email / Phone number'
+                      />
+                    </div>
+                    <div className='erow'>
+                      <InputField
+                        Name='password'
+                        Type='password'
+                        ID='passwordID'
+                        Placeholder='Password'
+                      />
+                    </div>
+                  </FormGroup>
+                  <FormGroup>
+                    <div className='submit-btn text-center'>
+                      <Button
+                        type='submit'
+                        id='submitID'
+                        className='btn btn-dark px-5 py-2'
+                        disabled={submitting || pristine}
+                      >
+                        Signin
+                      </Button>
+                    </div>
+                  </FormGroup>
+                </form>
+              )}
+            ></Form>
 
-          <div className='text-center pt-3'>
-            <p>
-              Don't have an account? Please{' '}
-              <Link to={`/auth/register/customer`}> Sign up </Link>
-            </p>
+            <div className='fbGmailLogin'>
+              <div className='gmail-btn py-2'>
+                <GoogleLogin
+                  clientId='501935314157-nnfh7nvah1p9n1smdbj6ejt1avc6s22u.apps.googleusercontent.com'
+                  render={(renderProps) => (
+                    <Button
+                      className='btn btn-dark btn-block'
+                      onClick={renderProps.onClick}
+                      disabled={renderProps.disabled}
+                    >
+                      Login with Gmail
+                    </Button>
+                  )}
+                  buttonText='Login'
+                  onSuccess={responseGoogle}
+                  onFailure={responseGoogle}
+                  cookiePolicy={'single_host_origin'}
+                />
+              </div>
+
+              <div className='fb-btn'>
+                <FacebookLogin
+                  appId='2643388962571610'
+                  fields='name,email,picture'
+                  callback={responseFacebook}
+                  render={(renderProps) => (
+                    <Button
+                      className='btn btn-dark btn-block'
+                      onClick={renderProps.onClick}
+                    >
+                      Login with Facebook
+                    </Button>
+                  )}
+                />
+              </div>
+            </div>
+
+            <div className='text-center pt-3'>
+              <p>
+                Don't have an account? Please{' '}
+                <Link to={`/auth/register/customer`}> Sign up </Link>
+              </p>
+            </div>
           </div>
         </div>
       </div>

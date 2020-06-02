@@ -13,6 +13,9 @@ const envSchema = Joi.object({
   EMAIL_PASSWORD: Joi.string().required(),
   JWT_ACCESS_KEY_EXPIRE_TIME: Joi.string().default('60m'),
   JWT_REFRESH_KEY_EXPIRE_TIME: Joi.string().default('720h'),
+  ADMIN_USERNAME: Joi.string().required(),
+  ADMIN_PASSWORD: Joi.string().required(),
+  ADMIN_ID: Joi.string().required(),
 })
   .unknown()
   .required();
@@ -31,4 +34,7 @@ module.exports = {
   emailPassword: validatedEnv.EMAIL_PASSWORD,
   jwtAccessKeyExpireTime: validatedEnv.JWT_ACCESS_KEY_EXPIRE_TIME,
   jwtRefreshKeyExpireTime: validatedEnv.JWT_REFRESH_KEY_EXPIRE_TIME,
+  adminUsername: validatedEnv.ADMIN_USERNAME,
+  adminPassword: validatedEnv.ADMIN_PASSWORD,
+  adminID: validatedEnv.ADMIN_ID,
 };

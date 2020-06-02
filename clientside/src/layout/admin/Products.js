@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import '../assests/css/products.css';
-import ProductImage from '../assests/images/food-image.jpg';
-import NavBar from '../components/NavBar';
+import '../../assests/css/products.css';
+import '../../assests/css/adminProd.css';
+import ProductImage from '../../assests/images/food-image.jpg';
+import NavBar from '../../components/AdminNavbar';
 
 import {
   Dropdown,
@@ -15,12 +16,24 @@ import {
   ModalFooter,
 } from 'reactstrap';
 
-export default function Products() {
+export default function Products(props) {
+  const [nestedModal, setNestedModal] = useState(false);
+  const [closeAll, setCloseAll] = useState(false);
+
+  const toggleNested = () => {
+    setNestedModal(!nestedModal);
+    setCloseAll(false);
+  };
+  const toggleAll = () => {
+    setNestedModal(!nestedModal);
+    setCloseAll(true);
+  };
+
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [dropdownValue, setDropdownValue] = useState('Category');
 
   const [MODALdropdownOpen, setMODALDropdownOpen] = useState(false);
-  const [MODALdropdownValue, setMODALDropdownValue] = useState('Select Shop');
+  const [MODALdropdownValue, setMODALDropdownValue] = useState('Shops');
   const [MODALdropdownPrice, setMODALDropdownPrice] = useState(null);
   const [modal, setModal] = useState(false);
 
@@ -49,6 +62,20 @@ export default function Products() {
         <div className='products_header text-center pb-3 pt-4'>
           <h1> Our Products </h1>
         </div>
+        <div className='seeCategoryBtn'>
+          <button
+            className='btn btn-dark'
+            onClick={() => props.history.push('/admin/products/new')}
+          >
+            Add Product
+          </button>
+          <button
+            className='btn btn-dark'
+            onClick={() => props.history.push('/admin/products/category')}
+          >
+            Add category
+          </button>
+        </div>
         <div className='products_two_section'>
           <div className='products_each_section'>
             <div className='category'>
@@ -56,24 +83,6 @@ export default function Products() {
                 <p> Category </p>
               </div>
               <div className='categories'>
-                <div className='cat'>
-                  <i className='fa fa-angle-right'></i> <span>Category</span>
-                </div>
-                <div className='cat'>
-                  <i className='fa fa-angle-right'></i> <span>Category</span>
-                </div>
-                <div className='cat'>
-                  <i className='fa fa-angle-right'></i> <span>Category</span>
-                </div>
-                <div className='cat'>
-                  <i className='fa fa-angle-right'></i> <span>Category</span>
-                </div>
-                <div className='cat'>
-                  <i className='fa fa-angle-right'></i> <span>Category</span>
-                </div>
-                <div className='cat'>
-                  <i className='fa fa-angle-right'></i> <span>Category</span>
-                </div>
                 <div className='cat'>
                   <i className='fa fa-angle-right'></i> <span>Category</span>
                 </div>
@@ -112,12 +121,6 @@ export default function Products() {
                     <DropdownItem onClick={changeValue}>
                       Some Action
                     </DropdownItem>
-                    <DropdownItem onClick={changeValue}>
-                      Bar Action
-                    </DropdownItem>
-                    <DropdownItem onClick={changeValue}>
-                      Quo Action
-                    </DropdownItem>
                   </DropdownMenu>
                 </Dropdown>
               </div>
@@ -137,23 +140,41 @@ export default function Products() {
                   <p> BDT 10.00</p>
                 </div>
                 <div className='each_product_btn'>
-                  <button> ADD TO CHART </button>
+                  <button> UPDATE </button>
                 </div>
               </div>
             </div>
+
             <Modal
               isOpen={modal}
               toggle={toggleModal}
               centered='true'
               size='lg'
             >
-              <ModalHeader toggle={toggleModal}>Select Shop</ModalHeader>
+              <ModalHeader toggle={toggleModal}>
+                Update Product Information
+              </ModalHeader>
               <ModalBody>
                 <section>
-                  <div className='modal_productInfo'>
+                  <div className='modal_admin_productInfo'>
                     <div className='modal_productInfo_img_wrpr'>
                       <div className='modal_productInfo_img'>
                         <img src={ProductImage} alt='img' />
+                      </div>
+                      <div className='updateFile text-center mb-2'>
+                        <label
+                          for='updateFileID'
+                          className='btn btn-success mt-2 px-3'
+                        >
+                          Update Image
+                        </label>
+                        <input
+                          type='file'
+                          id='updateFileID'
+                          accept='image/*'
+                          name='updateImage'
+                          style={{ display: 'none' }}
+                        />
                       </div>
                     </div>
                     <div className='modal_productInfo_info'>
@@ -171,6 +192,13 @@ export default function Products() {
                         <p>
                           <i class='fa fa-money'></i>
                           <span>BDT 10.50</span>
+                        </p>
+                      </div>
+
+                      <div className='modal_productInfo_info_des'>
+                        <p>
+                          This is product Description This is product
+                          Description This is product Description
                         </p>
                       </div>
 
@@ -197,99 +225,102 @@ export default function Products() {
                                 </p>
                               </div>
                             </DropdownItem>
-                            <DropdownItem onClick={MODALchangeValue}>
-                              <div className='EachShop'>
-                                <p className='EachShop_name'>
-                                  <i className='fa fa-shopping-cart'></i>
-                                  <span> Meena Super Shop </span>
-                                </p>
-
-                                <p className='EachShop_price'>
-                                  <i className='fa fa-money'></i>
-                                  <span>BDT 85 </span>
-                                </p>
-                              </div>
-                            </DropdownItem>
-                            <DropdownItem onClick={MODALchangeValue}>
-                              <div className='EachShop'>
-                                <p className='EachShop_name'>
-                                  <i className='fa fa-shopping-cart'></i>
-                                  <span> Raju Super Shop </span>
-                                </p>
-
-                                <p className='EachShop_price'>
-                                  <i className='fa fa-money'></i>
-                                  <span>BDT 83 </span>
-                                </p>
-                              </div>
-                            </DropdownItem>
-                            <DropdownItem onClick={MODALchangeValue}>
-                              <div className='EachShop'>
-                                <p className='EachShop_name'>
-                                  <i className='fa fa-shopping-cart'></i>
-                                  <span> Mithu Super Shop </span>
-                                </p>
-
-                                <p className='EachShop_price'>
-                                  <i className='fa fa-money'></i>
-                                  <span>BDT 92 </span>
-                                </p>
-                              </div>
-                            </DropdownItem>
-                            <DropdownItem onClick={MODALchangeValue}>
-                              <div className='EachShop'>
-                                <p className='EachShop_name'>
-                                  <i className='fa fa-shopping-cart'></i>
-                                  <span> Saif Super Shop </span>
-                                </p>
-
-                                <p className='EachShop_price'>
-                                  <i className='fa fa-money'></i>
-                                  <span>BDT 100 </span>
-                                </p>
-                              </div>
-                            </DropdownItem>
                           </DropdownMenu>
                         </Dropdown>
                       </div>
-                      <label for='quantityID' className='mt-2'>
-                        {' '}
-                        Quantity:{' '}
-                      </label>
-                      <div className='modal_productInfo_info_AddCart d-flex'>
-                        <div className='form-group'>
-                          <input
-                            type='number'
-                            id='quantityID'
-                            className='form-control'
-                            placeholder='Enter an amount'
-                          />
-                        </div>
-                        <div className='modal_productInfo_info_add_cart'>
-                          <button className='btn btn-success'>
-                            <i className='fa fa-plus mr-1'></i>Add to Cart
-                          </button>
-                        </div>
-                      </div>
-                      <div className='text-center'>
-                        <p>
-                          Add{' '}
-                          <span style={{ color: 'red', fontWeight: 'bold' }}>
-                            {' '}
-                            32.00 BDT
-                          </span>{' '}
-                          to reach cart minimum
-                        </p>
-                      </div>
 
-                      <div className='text-center'>
-                        <button className='btn btn-success px-5 py-2'>
-                          View Cart
+                      <div className='modal_productInfo_info_add_cart'>
+                        <button
+                          className='btn btn-success'
+                          onClick={toggleNested}
+                        >
+                          Update Informations
                         </button>
                       </div>
                     </div>
                   </div>
                 </section>
+
+                <Modal
+                  isOpen={nestedModal}
+                  toggle={toggleNested}
+                  onClosed={closeAll ? toggle : undefined}
+                  centered='true'
+                  size='lg'
+                >
+                  <ModalHeader>Update Informations</ModalHeader>
+                  <ModalBody>
+                    <div className='container'>
+                      <form>
+                        <div className='form-group'>
+                          <label for='prodNameID'> Product name: </label>
+                          <input
+                            type='text'
+                            id='prodNameID'
+                            name='prodName'
+                            className='form-control'
+                            placeholder='Enter product name'
+                          />
+                        </div>
+                        <div className='form-group'>
+                          <label for='prodDesID'> Product description: </label>
+                          <textarea
+                            id='prodDesID'
+                            name='prodDes'
+                            className='form-control'
+                            placeholder='Enter product description'
+                            rows='3'
+                          />
+                        </div>
+                        <div className='dFlex'>
+                          <div className='form-group'>
+                            <label for='prodPriceID'> Product price: </label>
+                            <input
+                              type='number'
+                              id='prodPriceID'
+                              name='prodPrice'
+                              className='form-control'
+                              placeholder='Enter product price'
+                            />
+                          </div>
+                          <div className='form-group'>
+                            <label for='prodCategoryID'>
+                              {' '}
+                              Product Category:{' '}
+                            </label>{' '}
+                            <br />
+                            <select
+                              className='form-control'
+                              id='prodCategoryID'
+                            >
+                              <option disabled selected>
+                                Select Category
+                              </option>
+                              <option>1</option>
+                              <option>2</option>
+                              <option>Others</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className='form-group'>
+                          <label for='prodNewCatID'> Enter Category: </label>
+                          <input
+                            type='text'
+                            id='prodNewCatID'
+                            name='prodNewCat'
+                            className='form-control'
+                            placeholder='Enter new category name'
+                          />
+                        </div>
+                      </form>
+                    </div>
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button color='danger' onClick={toggleNested}>
+                      Cancel
+                    </Button>
+                  </ModalFooter>
+                </Modal>
               </ModalBody>
               <ModalFooter>
                 <Button color='secondary' onClick={toggleModal}>
